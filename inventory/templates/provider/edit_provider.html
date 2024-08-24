@@ -1,0 +1,41 @@
+<div class="modal fade" id="modalProvider" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Registrar Proveedor</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'edit_provider' provider.id%}" method="POST" class="card card-body" novalidate
+                id="formProvider">
+                <div class="modal-body" id="modal-body">
+                    {% csrf_token %}
+                    {{form.code_provider.label}}
+                    {{form.code_provider}}
+                    {{form.code_provider.errors}}
+
+                    {{form.nit_provider.label}}
+                    {{form.nit_provider}}
+                    {{form.nit_provider.errors}}
+
+                    {{form.name_provider.label}}
+                    {{form.name_provider}}
+                    {{form.name_provider.errors}}
+
+                    {{form.phone_provider.label}}
+                    {{form.phone_provider}}
+                    {{form.phone_provider.errors}}
+
+                    {{form.address_provider.label}}
+                    {{form.address_provider}}
+                    {{form.address_provider.errors}}
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-success" id="confirmButton">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

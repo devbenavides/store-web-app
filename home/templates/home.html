@@ -1,0 +1,26 @@
+{% extends 'nav/base.html'%}
+{% block content %}
+<main class="container py-5">
+    <section class="card card-body">
+        <h2 class="display-1 text-center">Store App</h2>
+        <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Veritatis ea optio, quos ratione autem corporis
+            nobis dicta repellat molestias repellendus nostrum eveniet aut totam aliquid a placeat? Rem quas autem ut
+            sequi doloribus minima illum laborum dolor soluta explicabo. Eveniet blanditiis quis ipsum, vel eius,
+            quaerat possimus laboriosam dolorum cum doloremque, mollitia pariatur tenetur sed praesentium deserunt ut
+            nihil nisi? Expedita pariatur odio et neque consequatur exercitationem vel esse laudantium obcaecati.
+            Eligendi quibusdam quo quasi? Tenetur obcaecati ad et quos. Mollitia id laudantium saepe quis laboriosam rem
+            dolores, debitis recusandae qui sequi. Itaque quam voluptatem non quaerat magnam aspernatur ipsum.</p>
+        {% if user.is_authenticated %}
+        <div class="text-center">
+            <a class="btn btn-success" href="{% url 'logout' %}">Logout</a>
+        </div>
+        {% else %}
+        <div class="text-center">
+            <a class="btn btn-secondary" href="{% url 'signup' %}">Signup</a>
+            <a class="btn btn-primary" href="{% url 'signin' %}">Signin</a>
+        </div>
+        {% endif %}
+    </section>
+</main>
+
+{% endblock %}

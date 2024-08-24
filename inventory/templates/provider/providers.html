@@ -1,0 +1,51 @@
+{% extends 'nav/base.html' %}
+{% load static %}
+{% block content %}
+<script src="{% static 'js/provider.js' %}"></script>
+<main class="container">
+    <div class="row">
+        <div class="col-md-7 offset-md-3">
+            <h1 class="text-center display-center py-5">Proveedores</h1>
+            <div class="py-3">
+                <!-- <a class="btn btn-primary" href="{% url 'create_product'%}">Agregar producto</a> -->
+                <button type="button" class="btn btn-primary" onclick="createProvider()">Agregar proveedor</button>
+            </div>
+            <div id="alerts"></div>
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">NIT</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Telefono</th>
+                    <th scope="col">Dirección</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {% for provider in providers %}
+                  <tr>
+                    <th scope="row">{{provider.id}}</th>
+                    <td>{{provider.nit_provider}}</td>
+                    <td>{{provider.name_provider}}</td>
+                    <td>{{provider.phone_provider}}</td>
+                    <td>{{provider.address_provider}}</td>
+                    <td>
+                        <button type="button" class="btn btn-success" onclick="editProvider('{{ provider.id }}')">Editar</button>
+                        <button type="button" class="btn btn-danger" onclick="providerDelete('{{ provider.id }}')">Eliminar</button>
+                        
+                        </form>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                  
+                </tbody>
+              </table>
+            
+        </div>
+    </div>
+</main>
+{% include 'modal_confirm.html' %}
+<!-- Contenedor para el modal -->
+<div id="modalContainerProvider"></div>
+{% endblock %}

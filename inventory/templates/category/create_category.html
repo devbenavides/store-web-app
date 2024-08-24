@@ -1,0 +1,34 @@
+<div class="modal fade" id="modalCreateCategory" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Crear Categoria</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'create_category' %}" method="POST" class="card card-body" novalidate
+                id="miFormulario">
+                <div class="modal-body" id="modal-body">
+                    {% csrf_token %}
+                    {{form.code_category.label}}
+                    {{form.code_category}}
+                    {{form.code_category.errors}}
+                    {{form.name_category.label}}
+                    {{form.name_category}}
+                    {{form.name_category.errors}}
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-success" id="confirmButton">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- <main class="container">
+    <div class="row">
+        <div class="col-md-4 offset-md-4 mt-5">
+            
+        </div>
+    </div>
+</main> -->

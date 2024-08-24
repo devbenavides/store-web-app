@@ -1,0 +1,43 @@
+
+<div class="modal fade" id="modalProduct" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Registrar Producto</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'detail_product' product.id %}" method="POST" class="card card-body" novalidate
+                id="formProduct">
+                <div class="modal-body" id="modal-body">
+                    {% csrf_token %}
+                    {{form.code_product.label}}
+                    {{form.code_product}}
+                    {{form.code_product.errors}}
+                    {{form.name_product.label}}
+                    {{form.name_product}}
+                    {{form.name_product.errors}}
+                    {{form.description.label}}
+                    {{form.description}}
+                    {{form.description.errors}}
+                    {{form.stock_product.label}}
+                    {{form.stock_product}}
+                    {{form.stock_product.errors}}
+                    {{form.stock_min.label}}
+                    {{form.stock_min}}
+                    {{form.stock_min.errors}}
+                    {{form.unit_sale_price.label}}
+                    {{form.unit_sale_price}}
+                    {{form.unit_sale_price.errors}}
+                    {{form.category.label}}
+                    {{form.category}}
+                    {{form.category.errors}}
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-success" id="confirmButton">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
