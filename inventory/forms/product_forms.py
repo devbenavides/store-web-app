@@ -3,7 +3,7 @@ from ..models.product import Product
 from ..models.category import Category
 
 class ProductForm(forms.ModelForm):
-    """ en las siguientes dos lineas obtenemos el listado de la BD, el cual lo regresa en tuplas
+    """ en las siguiente lineas obtenemos el listado de la BD, el cual lo regresa en tuplas
      luego lo pasamos a una lista e insertamos la opcion por default """
     
     category = forms.ModelChoiceField(
