@@ -68,3 +68,12 @@ def deleteProduct(request,product_id):
     product = get_object_or_404(Product,pk=product_id)
     product.delete()
     return JsonResponse({'product':product.name_product})
+
+""" def searchCodeProduct(request):
+    if 'code_prodcut' in request.GET:
+        code_product = request.GET['code_product']
+
+        try:
+            product = get_object_or_404(Product,code_product=code_product)
+            
+        except ValueError: """

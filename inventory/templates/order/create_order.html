@@ -1,0 +1,128 @@
+{% extends 'nav/base.html' %}
+{% load static %}
+{% block content %}
+<script>
+    var today = "{{ today|date:'Y-m-d' }}";
+</script>
+<script src="{% static 'js/order.js' %}"></script>
+
+<main class="container">
+
+    <form id="formOrder" class="card card-body" novalidate>
+        {% csrf_token %}
+        <h4 class="title">Datos del pedido</h4>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                {{form.number_invoice.label}}
+                {{form.number_invoice}}
+                <div class="invalid-feedback" id="e_number_invoice">
+                </div>
+                <div class="valid-feedback" id="number_invoice">
+                    ok
+                  </div>
+            </div>
+            <div class="col-md-4">
+                {{form.provider.label}}
+                {{form.provider}}
+                <div class="invalid-feedback" >Seleccione un proveedor.</div>                
+            </div>
+            <div class="col-md-4">
+                {{form.date_order.label}}
+                {{form.date_order}}
+                <div class="invalid-feedback" id="e_date_order" >
+                    Seleccione una fecha.
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                {{form.code_product.label}}
+                <div class="input-group">
+                    {{form.code_product}}
+                    <button type="button" class="btn btn-outline-secondary">Buscar</button>
+                </div>
+
+            </div>
+            <div class="col-md-4">
+                {{form.product.label}}
+                {{form.product}}
+                <div class="invalid-feedback" id="e_product">
+                    Seleccione un producto.
+                </div>
+                
+            </div>
+            <div class="col-md-4">
+                {{form.quantity.label}}
+                {{form.quantity}}
+                <div class="invalid-feedback">
+                    Digite una cantidad
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                {{form.buy_price.label}}
+                {{form.buy_price}}
+                <div class="invalid-feedback" id="e_buy_price">
+                    Ingrese el precio de compra.
+                </div>
+            </div>
+            <div class="col-md-4">
+                {{form.sale_price.label}}
+                {{form.sale_price}}
+                <div class="invalid-feedback" id="e_sale_price">
+                    Ingrese el precio de venta.
+                </div>
+                
+            </div>
+            <div class="col-md-4">
+                {{form.expiration_date.label}}
+                {{form.expiration_date}}
+                <div class="invalid-feedback" id="e_expiration_date">
+                    Seleccione una fecha de vencimiento.
+                </div>
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Agregar</button>
+            </div>
+        </div>
+    </form>
+    <div>
+        <table class="table" id="tableNewOrders">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Producto</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Precio de compra</th>
+                    <th scope="col">Precio de venta</th>
+                    <th scope="col">Proveedor</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th scope="row">1</th>
+                    <td>Producto 1</th>
+                    <td>3</td>
+                    <td>4500</td>
+                    <td>5000</td>
+                    <td>Proveedor 1 SA</td>
+                    <td>
+                        <button type="button" class="btn btn-success" onclick="">Editar</button>
+                        <button type="button" class="btn btn-danger" onclick="">Eliminar</button>
+
+                        </form>
+                    </td>
+                </tr>
+
+
+            </tbody>
+        </table>
+    </div>
+</main>
+
+
+{% endblock %}
