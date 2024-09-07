@@ -130,7 +130,7 @@ class OrderForm(forms.ModelForm):
 
     def clean_date_order(self):
         date_order =  self.cleaned_data.get('date_order')
-        today = timezone.now().today()
+        today = timezone.now().date()
 
         if(date_order>today):
             raise forms.ValidationError('La fecha no puede ser mayor que la fecha actual.')

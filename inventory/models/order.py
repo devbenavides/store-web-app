@@ -1,6 +1,8 @@
 from django.db import models
 from .product import Product
 from .provider import Provider
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 class Order(models.Model):
     number_invoice = models.CharField(max_length=100,null=True, blank=True)
@@ -17,3 +19,10 @@ class Order(models.Model):
     
     class Meta:
         app_label = 'inventory'
+
+@receiver(post_save, sender=Order)
+def updateStock(sender, instance, **kwargs):
+    product=instance.product
+    product.stock_product += instance.quantity
+    product.unit_sale_price = instance.sale_price
+    product.save()

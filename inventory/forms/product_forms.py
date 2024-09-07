@@ -59,7 +59,7 @@ class ProductForm(forms.ModelForm):
     )
     stock_product = forms.IntegerField(
         label='Stock',
-        required=True,
+        required=False,
         widget=forms.NumberInput(
             attrs={
                 'class': 'form-control',

@@ -6,6 +6,7 @@ from ..forms.order_forms import OrderForm
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
+from django.urls import reverse
 
 
 def getAllOrder(request):
@@ -14,14 +15,16 @@ def getAllOrder(request):
 
 
 def createOrder(request):
-    today = timezone.now().today()
+    today = timezone.now().date()
+    searchCodeProduct= reverse('search_code_product')
+    create_order = reverse('create_order')
     if request.method == 'GET':
-        return render(request, 'order/create_order.html', {'form': OrderForm,'today':today})
+        return render(request, 'order/create_order.html', {'form': OrderForm,'today':today,'searchCodeProduct':searchCodeProduct,'create_order':create_order})
     else:
         try:
             newOrder = Order()
             form = OrderForm(request.POST)
-
+            
             if form.is_valid():
                 newOrder = form.save(commit=False)
                 newOrder.save()
@@ -35,6 +38,8 @@ def createOrder(request):
                 }
                 return JsonResponse({'success': True, 'order': order})
             else:
+                
                 return JsonResponse({'success': False, 'error': form.errors}, status=400)
         except ValueError:
             return JsonResponse({'success': False, 'error': 'Validar informacion'}, status=400)
+        

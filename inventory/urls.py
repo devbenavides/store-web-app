@@ -12,6 +12,8 @@ urlpatterns = [
     path('product/create/', product_views.createProduct, name='create_product'),
     path('product/<int:product_id>/', product_views.detailProduct, name='detail_product'),
     path('product/delete/<int:product_id>/', product_views.deleteProduct, name='delete_product'),
+    path('product/search-product/', product_views.searchCodeProduct, name='search_code_product'),
+
 
     path('provider/', provider_views.getAllProvider,name='list_providers'),
     path('provider/create/',provider_views.createProvider,name='create_provider'),

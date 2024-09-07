@@ -20,13 +20,13 @@ def createProduct(request):
         try:
             # request.POST['category'] = int(request.POST['category'])
             newProduct = Product()
-            form = ProductForm(request.POST)    
-            if form.is_valid():        
+            form = ProductForm(request.POST)
+            if form.is_valid():
                 newProduct = form.save(commit=False)
                 newProduct.save()
-                return JsonResponse({'success':True, 'msm':'Producto agregado'})
+                return JsonResponse({'success': True, 'msm': 'Producto agregado'})
             else:
-                return render(request,'product/create_product.html',{'form':form})
+                return render(request, 'product/create_product.html', {'form': form})
         except ValueError:
             return render(
                 request,
@@ -49,9 +49,9 @@ def detailProduct(request, product_id):
             form = ProductForm(request.POST, instance=product)
             if form.is_valid():
                 form.save()
-                return JsonResponse({'success':True,'msm':'Producto actualizado'})
+                return JsonResponse({'success': True, 'msm': 'Producto actualizado'})
             else:
-                return render(request,'product/detail_product.html',{'product': product,'form':form})
+                return render(request, 'product/detail_product.html', {'product': product, 'form': form})
         except ValueError:
             return render(
                 request,
@@ -62,18 +62,25 @@ def detailProduct(request, product_id):
                     'error': 'Error al actualizar el producto'
                 }
             )
-        
+
+
 @require_http_methods(["DELETE"])
-def deleteProduct(request,product_id):
-    product = get_object_or_404(Product,pk=product_id)
+def deleteProduct(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
     product.delete()
-    return JsonResponse({'product':product.name_product})
+    return JsonResponse({'product': product.name_product})
 
-""" def searchCodeProduct(request):
-    if 'code_prodcut' in request.GET:
-        code_product = request.GET['code_product']
 
+def searchCodeProduct(request):
+    if 'code_product' in request.GET:
+        code_product = request.GET.get('code_product')
         try:
-            product = get_object_or_404(Product,code_product=code_product)
-            
-        except ValueError: """
+            product = get_object_or_404(Product, code_product=code_product)
+            data = {
+                'id':product.id,
+                'code_product': product.code_product,
+                'name_product': product.name_product
+            }
+            return JsonResponse(data)
+        except ValueError:
+            return JsonResponse({'error':'Producto no encontrado'},status=404)
