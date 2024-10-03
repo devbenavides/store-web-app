@@ -1,48 +1,124 @@
 {% extends 'nav/base.html' %}
 {% load static %}
 {% block content %}
-<script src="{% static 'js/order.js' %}"></script>
-<main class="container">
-  <div class="row">
-    <div class="col-md-6 offset-md-3">
-      <h1 class="text-center display-center py-5">Categorias</h1>
-      <div class="py-3">
-        <a class="btn btn-primary" href="{% url 'create_order' %}">Nueva pedido</a>
+
+
+  <script src="{% static 'js/pagination.js' %}"></script>
+  <main class="container">
+    <div class="row">
+      <div class="col-md-6 offset-md-3">
+        <h1 class="text-center display-center py-5">Categorias</h1>
+        <div class="py-3">
+          <a class="btn btn-primary" href="{% url 'create_order' %}">Nuevo pedido</a>
+        </div>
+        <div id="alerts"></div>
+        <div class="row align-items-center mb-3">
+          <div class="col-auto">
+              <label for="records-per-page" class="col-form-label">Mostrar</label>
+          </div>
+          <div class="col-auto">
+              <select id="records-per-page" class="form-select form-select-sm">
+                  {% with records_per_page=request.GET.records_per_page|default:"10" %}
+                  <option value="?page={{ orders.number }}&records_per_page=5" {% if records_per_page == "5" %}selected{% endif %}>5</option>
+                  <option value="?page={{ orders.number }}&records_per_page=10" {% if records_per_page == "10" %}selected{% endif %}>10</option>
+                  <option value="?page={{ orders.number }}&records_per_page=15" {% if records_per_page == "15" %}selected{% endif %}>15</option>
+                  <option value="?page={{ orders.number }}&records_per_page=30" {% if records_per_page == "30" %}selected{% endif %}>30</option>
+                  <option value="?page={{ orders.number }}&records_per_page=50" {% if records_per_page == "50" %}selected{% endif %}>50</option>
+                  {% endwith %}
+              </select>
+          </div>
+          <div class="col-auto">
+              <label>registros por página</label>
+          </div>
+        </div>
+        
+        <table class="table" id="table-list">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Producto</th>
+              <th scope="col">Precio de compra</th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            {% for order in orders %}
+            <tr>
+              <th scope="row">{{order.id}}</th>
+              <td>{{order.product.name_product}}</td>
+              <td>{{order.buy_price}}</td>
+              <td>
+                <button type="button" class="btn btn-success" onclick="">
+                  Editar
+                </button>
+                <button type="button" class="btn btn-danger" onclick="">
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+        <div class="row mb-3" >
+          <div class="col-xs-12 col-sm-6">
+            <p id="records-info">Mostrando {{ orders.object_list|length }} pedidos de {{ orders.paginator.count }}</p>
+          </div>
+          <div class="col-xs-12 col-sm-6 text-end">
+            <p id="pagination-info">Página {{ orders.number }} de {{ orders.paginator.num_pages }}.</p>
+          </div>
+        </div>
+      
+
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center" id="pagination">
+            {% if orders.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page=1&records_per_page={{ request.GET.records_per_page }}">Primera</a>
+            </li>
+            <li class="page-item">
+              <a class="page-link"
+                href="?page={{ orders.previous_page_number }}&records_per_page={{ request.GET.records_per_page }}">Anterior</a>
+            </li>
+            {% endif %}
+
+            {% for num in orders.paginator.page_range %}
+              {% if num > orders.number|add:'-2' and num < orders.number|add:'2' %} <li
+                class="page-item {% if num == orders.number %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}&records_per_page={{ request.GET.records_per_page }}">{{num}}</a>
+                </li>
+              {% elif num == 1 or num == orders.paginator.num_pages %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ num }}&records_per_page={{ request.GET.records_per_page }}">{{ num}}</a>
+                </li>
+              {% elif num == orders.number|add:'-3' and num > 1 %}
+                <li class="page-item disabled">
+                  <span class="page-link">...</span>
+                </li>
+              {% elif num == orders.number|add:'2' and num < orders.paginator.num_pages %} <li class="page-item disabled">
+                  <span class="page-link">...</span>
+                  </li>
+              {% endif %}
+            {% endfor %}
+
+                {% if orders.has_next %}
+                <li class="page-item">
+                  <a class="page-link"
+                    href="?page={{ orders.next_page_number }}&records_per_page={{ request.GET.records_per_page }}">Siguiente</a>
+                </li>
+                <li class="page-item">
+                  <a class="page-link"
+                    href="?page={{ orders.paginator.num_pages }}&records_per_page={{ request.GET.records_per_page }}">Última</a>
+                </li>
+                {% endif %}
+          </ul>
+        </nav>
+
+
       </div>
-      <div id="alerts"></div>
-      <table class="table" id="tablaDatos">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Codigo</th>
-            <th scope="col">Nombre</th>
-            <th scope="col"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- {% for order in orders %}
-          <tr>
-            <th scope="row">{{category.id}}</th>
-            <td>{{category.code_category}}</td>
-            <td>{{category.name_category}}</td>
-            <td>              
-              <button type="button" class="btn btn-success" onclick="editCategory('{{category.id}}')">
-                Editar
-              </button>
-              <button type="button" class="btn btn-danger" onclick="categoryDelete('{{category.id}}')">
-                Eliminar
-              </button>
-            </td>
-          </tr>
-          {% endfor %} -->
-
-        </tbody>
-      </table>
-
     </div>
-  </div>
-</main>
-{% include 'modal_confirm.html' %}
-<!-- Contenedor para el modal -->
-<div id="modalContainer"></div>
+  </main>
+  {% include 'modal_confirm.html' %}
+  <!-- Contenedor para el modal -->
+  <div id="modalContainer"></div>
 {% endblock %}

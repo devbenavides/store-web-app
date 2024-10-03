@@ -20,7 +20,7 @@ class ProductForm(forms.ModelForm):
             'required':'Seleccione una categoría',
         }
     )
-    code_product = forms.IntegerField(
+    code_product = forms.CharField(
         label='Código',
         required=True,
         widget=forms.TextInput(
@@ -57,9 +57,10 @@ class ProductForm(forms.ModelForm):
             }
         )
     )
-    stock_product = forms.IntegerField(
+    stock_product = forms.DecimalField(
         label='Stock',
         required=False,
+        min_value=0,
         widget=forms.NumberInput(
             attrs={
                 'class': 'form-control',
@@ -69,7 +70,7 @@ class ProductForm(forms.ModelForm):
             'required':'Campo obligatorio',
         }
     )
-    stock_min = forms.IntegerField(
+    stock_min = forms.DecimalField(
         label='Stock Mínimo',
         required=True,
         min_value=1,
@@ -83,7 +84,7 @@ class ProductForm(forms.ModelForm):
             'min_value':'El valor mínimo aceptado es 1'
         }
     )
-    unit_sale_price = forms.IntegerField(
+    unit_sale_price = forms.DecimalField(
         label='Precio',
         required=True,
         min_value=50,

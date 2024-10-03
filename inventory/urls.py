@@ -21,5 +21,7 @@ urlpatterns = [
     path('provider/delete/<int:provider_id>/',provider_views.deleteProvider,name='delete_provider'),
 
     path('order/',order_views.getAllOrder,name='list_orders'),
-    path('order/create/',order_views.createOrder,name='create_order')
+    path('order/create/',order_views.createOrder,name='create_order'),
+    path('order/edit',order_views.editOrder,name='edit_order')
 ]
+

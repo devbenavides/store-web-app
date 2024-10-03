@@ -9,9 +9,9 @@ class Product(models.Model):
     code_product = models.CharField(max_length=50, unique=True)
     name_product = models.CharField(max_length=30)
     description = models.CharField(max_length=255, null=True, blank=True)
-    stock_product = models.IntegerField()
-    stock_min = models.IntegerField()
-    unit_sale_price = models.IntegerField()
+    stock_product = models.DecimalField(max_digits=10,decimal_places=2,null=True, blank=True)
+    stock_min = models.DecimalField(max_digits=10,decimal_places=2)
+    unit_sale_price = models.DecimalField(max_digits=10,decimal_places=2,null=True, blank=True)
     image_product = models.CharField(max_length=50, null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 

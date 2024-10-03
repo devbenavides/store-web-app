@@ -6,9 +6,9 @@ from django.dispatch import receiver
 
 class Order(models.Model):
     number_invoice = models.CharField(max_length=100,null=True, blank=True)
-    quantity = models.IntegerField()
-    buy_price = models.IntegerField()
-    sale_price = models.IntegerField()
+    quantity = models.DecimalField(max_digits=10,decimal_places=2)
+    buy_price = models.DecimalField(max_digits=10,decimal_places=2)
+    sale_price = models.DecimalField(max_digits=10,decimal_places=2)
     expiration_date = models.DateField(null=True, blank=True)
     date_order = models.DateField()
     product = models.ForeignKey(Product, on_delete=models.PROTECT)

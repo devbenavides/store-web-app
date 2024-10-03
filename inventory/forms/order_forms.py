@@ -48,7 +48,7 @@ class OrderForm(forms.ModelForm):
 
         }
     )
-    quantity = forms.IntegerField(
+    quantity = forms.DecimalField(
         label='Cantidad',
         required=True,
         widget=forms.NumberInput(
@@ -60,7 +60,7 @@ class OrderForm(forms.ModelForm):
             'required': 'Campo obligatorio'
         }
     )
-    buy_price = forms.IntegerField(
+    buy_price = forms.DecimalField(
         label='Precio de compra',
         required=True,
         widget=forms.NumberInput(
@@ -72,7 +72,7 @@ class OrderForm(forms.ModelForm):
             'required': 'Campo obligatorio'
         }
     )
-    sale_price = forms.IntegerField(
+    sale_price = forms.DecimalField(
         label='Precio de venta',
         required=True,
         widget=forms.NumberInput(
@@ -84,10 +84,10 @@ class OrderForm(forms.ModelForm):
             'required': 'Campo obligatorio'
         }
     )
-    code_product = forms.IntegerField(
+    code_product = forms.CharField(
         label='Codigo del producto',
         required=False,
-        widget=forms.NumberInput(
+        widget=forms.TextInput(
             attrs={
                 'class': 'form-control',
                 'placeholder':'Escanee o digite el codigo del producto',

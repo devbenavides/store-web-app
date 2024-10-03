@@ -7,39 +7,81 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.urls import reverse
+from django.core.paginator import Paginator
+
+import json
 
 
 def getAllOrder(request):
     orders = Order.objects.all()
-    return render(request, 'order/orders.html', {'orders': orders})
+    per_page = int(request.GET.get('records_per_page',10))
+    paginator = Paginator(orders, per_page)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'order/orders.html',{'orders':page_obj})
 
 
 def createOrder(request):
     today = timezone.now().date()
-    searchCodeProduct= reverse('search_code_product')
+    searchCodeProduct = reverse('search_code_product')
     create_order = reverse('create_order')
     if request.method == 'GET':
-        return render(request, 'order/create_order.html', {'form': OrderForm,'today':today,'searchCodeProduct':searchCodeProduct,'create_order':create_order})
+        return render(request, 'order/create_order.html', {'form': OrderForm, 'today': today, 'searchCodeProduct': searchCodeProduct, 'create_order': create_order})
     else:
         try:
-            newOrder = Order()
-            form = OrderForm(request.POST)
-            
-            if form.is_valid():
-                newOrder = form.save(commit=False)
-                newOrder.save()
-                order = {
-                    'id':newOrder.id,
-                    'name_product':newOrder.product.name_product,
-                    'quantity':newOrder.quantity,
-                    'buy_price':newOrder.buy_price,
-                    'sale_price':newOrder.sale_price,
-                    'name_provider':newOrder.provider.name_provider
-                }
-                return JsonResponse({'success': True, 'order': order})
-            else:
-                
-                return JsonResponse({'success': False, 'error': form.errors}, status=400)
+
+            data = json.loads(request.body.decode('utf-8'))
+            save_items = []
+            error_items = []
+
+            for order in data['products']:
+
+                form = OrderForm(order)
+                if form.is_valid():
+                    order_created = form.save()
+                    save_items.append({
+                        'id': order_created.id,
+                        'name_product': order_created.product.name_product,
+                        'quantity': order_created.quantity,
+                        'buy_price': order_created.buy_price,
+                        'sale_price': order_created.sale_price,
+                        'name_provider': order_created.provider.name_provider
+                    })
+                else:
+                    error_items.append({
+                        'order_item': order,
+                        'errors': form.errors
+                    })
+
+            return JsonResponse(
+                {
+                    'success': len(error_items) == 0,
+                    'save_items': save_items,
+                    'error_item': error_items
+                }, status=200 if not error_items else 400)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Validar JSON'}, status=400)
+
+
+def editOrder(request):
+    edit_order_url = reverse('edit_order')
+    if request.method == 'GET':
+        order_id = request.GET.get('order_id')
+        try:
+            order = get_object_or_404(Order, pk=order_id)
+            data = {
+                'id': order.id,
+                'number_invoice': order.number_invoice,
+                'quantity': order.quantity,
+                'buy_price': order.buy_price,
+                'sale_price': order.sale_price,
+                'expiration_date': order.expiration_date,
+                'date_order': order.date_order,
+                'product_id': order.product.id,
+                'provider_id': order.provider.id,
+            }
+            return JsonResponse({'data': data, 'edit_order_url': edit_order_url})
         except ValueError:
-            return JsonResponse({'success': False, 'error': 'Validar informacion'}, status=400)
-        
+            return

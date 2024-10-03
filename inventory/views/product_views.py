@@ -76,11 +76,13 @@ def searchCodeProduct(request):
         code_product = request.GET.get('code_product')
         try:
             product = get_object_or_404(Product, code_product=code_product)
+            
             data = {
                 'id':product.id,
                 'code_product': product.code_product,
                 'name_product': product.name_product
             }
+            print(data)
             return JsonResponse(data)
         except ValueError:
             return JsonResponse({'error':'Producto no encontrado'},status=404)

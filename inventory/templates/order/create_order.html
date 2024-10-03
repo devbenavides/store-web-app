@@ -5,6 +5,7 @@
     var today = "{{ today|date:'Y-m-d' }}";
     var searchCodeProduct = "{{searchCodeProduct}}";
     var create_order = "{{create_order}}";
+    var edit_order_url = "{{edit_order_url}}"
     
 </script>
 <script src="{% static 'js/order.js' %}"></script>
@@ -16,6 +17,7 @@
         <h4 class="title">Datos del pedido</h4>
         <div class="row mb-3">
             <div class="col-md-4">
+                <input type="hidden" id="id-edit">
                 {{form.number_invoice.label}}
                 {{form.number_invoice}}
                 <div class="invalid-feedback" id="e_number_invoice">
@@ -88,7 +90,11 @@
         </div>
         <div class="row ">
             <div class="col-md-12">
-                <button type="submit" class="btn btn-primary">Agregar</button>
+                <button type="submit" id="btn_add_list" class="btn btn-primary">Agregar</button>
+            
+                <button type="button" hidden id="btn_save_changes" class="btn btn-success">Guardar Cambios</button>
+            
+                <button type="button" hidden id="btn_cancel" class="btn btn-danger">Cancelar</button>
             </div>
         </div>
     </form>
@@ -107,8 +113,15 @@
             </thead>
             <tbody></tbody>
         </table>
+        <div class="row "></div>
+            <div class="col-md-12">
+                <button type="button" hidden id="btn_save" class="btn btn-primary">Guardar</button>            
+                <button type="button" hidden id="btn_clear_table" class="btn btn-danger">Cancelar</button>
+            </div>
+        </div>
     </div>
 </main>
-
-
+{% include 'modal_confirm.html' %}
+<!-- Contenedor para el modal -->
+<div id="modalContainer"></div>
 {% endblock %}
