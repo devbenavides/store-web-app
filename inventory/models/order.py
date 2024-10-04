@@ -1,6 +1,7 @@
 from django.db import models
 from .product import Product
 from .provider import Provider
+from decimal import Decimal
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -23,6 +24,8 @@ class Order(models.Model):
 @receiver(post_save, sender=Order)
 def updateStock(sender, instance, **kwargs):
     product=instance.product
+    if product.stock_product is None:
+        product.stock_product = Decimal('0.00')
     product.stock_product += instance.quantity
     product.unit_sale_price = instance.sale_price
     product.save()

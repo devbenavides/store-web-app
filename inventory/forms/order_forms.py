@@ -97,7 +97,6 @@ class OrderForm(forms.ModelForm):
     )
     expiration_date = forms.DateField(
         label='Fecha de vencimiento',
-        input_formats=['%Y-%m-%d'],
         required=False,
         widget=forms.DateInput(
             attrs={
@@ -111,7 +110,6 @@ class OrderForm(forms.ModelForm):
     )
     date_order = forms.DateField(
         label='Fecha del pedido',
-        input_formats=['%Y-%m-%d'],
         required=True,
         widget=forms.DateInput(
             attrs={
@@ -135,4 +133,13 @@ class OrderForm(forms.ModelForm):
         if(date_order>today):
             raise forms.ValidationError('La fecha no puede ser mayor que la fecha actual.')
         return date_order
-        
+    
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance', None)
+        super().__init__(*args, **kwargs)
+
+        if instance:
+            for field_name in ['date_order','expiration_date']:
+                field_value=getattr(instance,field_name)
+                if field_name:
+                    self.initial[field_name] = field_value.strftime('%Y-%m-%d')

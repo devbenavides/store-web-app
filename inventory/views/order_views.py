@@ -14,12 +14,12 @@ import json
 
 def getAllOrder(request):
     orders = Order.objects.all()
-    per_page = int(request.GET.get('records_per_page',10))
+    per_page = int(request.GET.get('records_per_page', 10))
     paginator = Paginator(orders, per_page)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'order/orders.html',{'orders':page_obj})
+    return render(request, 'order/orders.html', {'orders': page_obj})
 
 
 def createOrder(request):
@@ -65,7 +65,20 @@ def createOrder(request):
             return JsonResponse({'success': False, 'error': 'Validar JSON'}, status=400)
 
 
-def editOrder(request):
+def editOrder(request, order_id):
+    today = timezone.now().date()
+    searchCodeProduct = reverse('search_code_product')
+    create_order = reverse('create_order')
+    if request.method == 'GET':
+        order = get_object_or_404(Order, pk=order_id)
+        date_order = order.date_order.strftime('%Y-%m-%d')
+        
+        form = OrderForm(instance=order)
+        #form.initial['date_order']=date_order
+        return render(request, 'order/edit_order.html', {'order': order, 'form': form,'today': today, 'searchCodeProduct': searchCodeProduct, 'create_order': create_order})
+
+
+def editOrder_(request):
     edit_order_url = reverse('edit_order')
     if request.method == 'GET':
         order_id = request.GET.get('order_id')
