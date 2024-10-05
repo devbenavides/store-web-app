@@ -2,8 +2,14 @@
 {% load static %}
 {% block content %}
 
-
-  <script src="{% static 'js/pagination.js' %}"></script>
+<script>
+  var today = "{{ today|date:'Y-m-d' }}";
+  var searchCodeProduct = "{{searchCodeProduct}}";
+  var create_order = "{{create_order}}";
+  var edit_order_url = "{{edit_order_url}}"
+  
+</script>
+  <script src="{% static 'js/pagination.js' %}"></script>  
   <script src="{% static 'js/order.js' %}"></script>
   <main class="container">
     <div class="row">

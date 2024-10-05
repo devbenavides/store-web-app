@@ -90,8 +90,8 @@ class OrderForm(forms.ModelForm):
         widget=forms.TextInput(
             attrs={
                 'class': 'form-control',
-                'placeholder':'Escanee o digite el codigo del producto',
-                'aria-describedby':'basic-addon3 basic-addon4'
+                'placeholder': 'Escanee o digite el codigo del producto',
+                'aria-describedby': 'basic-addon3 basic-addon4'
             }
         ),
     )
@@ -127,19 +127,22 @@ class OrderForm(forms.ModelForm):
         fields = '__all__'
 
     def clean_date_order(self):
-        date_order =  self.cleaned_data.get('date_order')
+        date_order = self.cleaned_data.get('date_order')
         today = timezone.now().date()
 
-        if(date_order>today):
-            raise forms.ValidationError('La fecha no puede ser mayor que la fecha actual.')
+        if (date_order > today):
+            raise forms.ValidationError(
+                'La fecha no puede ser mayor que la fecha actual.')
         return date_order
-    
+
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance', None)
         super().__init__(*args, **kwargs)
 
         if instance:
-            for field_name in ['date_order','expiration_date']:
-                field_value=getattr(instance,field_name)
-                if field_name:
+            for field_name in ['date_order', 'expiration_date']:
+                field_value = getattr(instance, field_name)
+                if field_value:
                     self.initial[field_name] = field_value.strftime('%Y-%m-%d')
+                else:
+                    self.initial[field_name] = ''

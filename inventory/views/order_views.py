@@ -8,12 +8,11 @@ from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.urls import reverse
 from django.core.paginator import Paginator
-
 import json
 
 
 def getAllOrder(request):
-    orders = Order.objects.all()
+    orders = Order.objects.order_by('id')
     per_page = int(request.GET.get('records_per_page', 10))
     paginator = Paginator(orders, per_page)
     page_number = request.GET.get('page')
@@ -76,6 +75,26 @@ def editOrder(request, order_id):
         form = OrderForm(instance=order)
         #form.initial['date_order']=date_order
         return render(request, 'order/edit_order.html', {'order': order, 'form': form,'today': today, 'searchCodeProduct': searchCodeProduct, 'create_order': create_order})
+    else:
+        try:
+            order = get_object_or_404(Order, pk=order_id)
+            data = json.loads(request.body) 
+            form = OrderForm(data,instance=order)
+            if(request.method == 'POST'):
+                print(f'data form ',data)
+
+            if form.is_valid():
+                #form.save()
+                print('Form is valid')
+                return JsonResponse({'success':True,'msm':'Pedido actualizado'})
+            else:
+                return JsonResponse({'success':False,'errors':form.errors})
+
+        except ValueError:
+            return render(
+                request,
+                'order/edit_order.html', {'order': order, 'form': form,'error':'Error al actualizar pedido'}
+            )
 
 
 def editOrder_(request):
