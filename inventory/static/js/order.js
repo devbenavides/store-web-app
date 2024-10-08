@@ -1,4 +1,6 @@
 
+import { setAlert } from "../../../static/js/alerts.js";
+
 function editOrder(id) {
   fetch(`/inventory/order/${id}/`) // Asegúrate de que esta ruta sirve el archivo modal.html
     .then(response => response.text())
@@ -17,8 +19,49 @@ function editOrder(id) {
     .catch(error => console.error('Error:', error));
 
 }
+
+function deleteOrder(order_id) {
+  const modalDelete = document.getElementById('modalConfirm');
+  const modal = new bootstrap.Modal(modalDelete);
+  modal.show();
+  const divMsm = document.getElementById('miDiv');
+  divMsm.innerHTML = "<h2>Está seguro que desea eliminar el registro?</h2> ";
+
+  const btnConfirm = document.getElementById('confirmButton');
+  btnConfirm.addEventListener('click', async function () {
+
+    try {
+
+      const response = await fetch(`/inventory/order/delete/${order_id}/`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        setAlert(data.error, 'danger');
+        modal.hide();
+        refreshAlerts();
+        return;
+      }
+
+      if (data.success) {
+        const row = document.getElementById(`order-${order_id}`);
+        setAlert('Pedido eliminado ', 'success');
+        modal.hide();
+        row.remove();
+        refreshAlerts();
+      }
+    } catch (error) {
+      setAlert('Error inesperado server ', error, 'danger');
+    }
+  });
+}
+
 function closeModal() {
-  const modal = document.getElementById('myModal');
+  const modal = document.getElementById('modalOrder');
   const bootstrapModal = bootstrap.Modal.getInstance(modal);
   if (bootstrapModal) {
     bootstrapModal.hide();
@@ -46,6 +89,8 @@ document.addEventListener('change', (event) => {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+  refreshAlerts();
+
   const modalContainer = document.getElementById('modalContainer');
 
   //delegacion de eventos para los botones de las demas paginas
@@ -56,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (action === 'edit') {
         editOrder(id);
       } else if (action == 'delete') {
-        console.log('Eliminar id ' + id);
+        deleteOrder(id);
       }
     }
   });
@@ -68,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const method = e.target.getAttribute('method');
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
-      console.log('form order', formData);
+
       try {
         const response = await fetch(url, {
           method,
@@ -82,9 +127,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const responseData = await response.json();
         if (responseData.success) {
-
+          setAlert(responseData.msm, 'success');
+          window.location.href = '/inventory/order/';
+          closeModal();
         } else {
-          const errors = responseData.errors;          
+          const errors = responseData.errors;
 
           // Recorrer y imprimir en consola
           /* for (const field in errors) {
@@ -96,12 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
  */
-         
+
           Object.keys(errors).forEach(field => {
             const fieldErrors = errors[field];
             fieldErrors.forEach(error_msm => {
-              const input = document.querySelector('[name="'+field+'"]');
-              if(input){
+              const input = document.querySelector('[name="' + field + '"]');
+              if (input) {
                 input.classList.add('is-invalid');
               }
             });
@@ -113,20 +160,24 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+});
 
-  function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      var cookies = document.cookie.split(';');
-      for (var i = 0; i < cookies.length; i++) {
-        var cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
+function refreshAlerts() {
+  const event = new Event('dynamicContentLoaded');
+  document.dispatchEvent(event);
+}
+
+function getCookie(name) {
+  var cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+      var cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
       }
     }
-    return cookieValue;
   }
-
-});
+  return cookieValue;
+}

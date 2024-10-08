@@ -128,6 +128,7 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
     BASE_DIR / 'inventory/static',
+    BASE_DIR / 'core/static',
 ]
 
 LOGIN_URL = '/auth/signin'

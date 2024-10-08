@@ -84,7 +84,7 @@ def editOrder(request, order_id):
                 print(f'data form ',data)
 
             if form.is_valid():
-                #form.save()
+                form.save()
                 print('Form is valid')
                 return JsonResponse({'success':True,'msm':'Pedido actualizado'})
             else:
@@ -96,6 +96,16 @@ def editOrder(request, order_id):
                 'order/edit_order.html', {'order': order, 'form': form,'error':'Error al actualizar pedido'}
             )
 
+@require_http_methods(['DELETE'])
+def deleteOrder(request,order_id):
+    try:    
+        order = Order.objects.get(pk=order_id)    
+        order.delete()
+        return JsonResponse({'success':True},status=200)
+    except Order.DoesNotExist:
+        return JsonResponse({'success':False, 'error':'Pedido no encontrado'},status=404)
+    
+        
 
 def editOrder_(request):
     edit_order_url = reverse('edit_order')

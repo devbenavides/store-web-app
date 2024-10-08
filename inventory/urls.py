@@ -22,6 +22,7 @@ urlpatterns = [
 
     path('order/',order_views.getAllOrder,name='list_orders'),
     path('order/create/',order_views.createOrder,name='create_order'),
-    path('order/<int:order_id>/',order_views.editOrder,name='edit_order')
+    path('order/<int:order_id>/',order_views.editOrder,name='edit_order'),
+    path('order/delete/<int:order_id>/',order_views.deleteOrder,name='delete_order'),
 ]
 

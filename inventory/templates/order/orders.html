@@ -10,7 +10,7 @@
   
 </script>
   <script src="{% static 'js/pagination.js' %}"></script>  
-  <script src="{% static 'js/order.js' %}"></script>
+  <script type="module" src="{% static 'js/order.js' %}"></script>
   <main class="container">
     <div class="row">
       <div class="col-md-6 offset-md-3">
@@ -50,7 +50,7 @@
           </thead>
           <tbody id="table-body">
             {% for order in orders %}
-            <tr>
+            <tr id="order-{{order.id}}">
               <th scope="row">{{order.id}}</th>
               <td>{{order.product.name_product}}</td>
               <td>{{order.buy_price}}</td>
