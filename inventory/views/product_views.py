@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 
 
 def getAllProduct(request):
-    products = Product.objects.all()
+    products = Product.objects.order_by('id')
     return render(request, 'product/products.html', {'products': products})
 
 
