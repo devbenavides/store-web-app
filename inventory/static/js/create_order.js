@@ -7,9 +7,67 @@ let btn_cancel;
 let btn_save;
 
 
+/* products.push({
+    id: 1,
+    number_invoice: '123123',
+    quantity: 23.5,
+    buy_price: 2000.23,
+    sale_price: 2500,
+    expiration_date: '02/04/2024',
+    date_order: '02/04/2024',
+    product: 1,
+    name_product: 'Product 1',
+    provider: 1,
+    name_provider: 'Provider 1'
+},
+    {
+        id: 2,
+        number_invoice: '123123',
+        quantity: 5,
+        buy_price: 1500,
+        sale_price: 2000,
+        expiration_date: '02/04/2024',
+        date_order: '02/04/2024',
+        product: 2,
+        name_product: 'Product 2',
+        provider: 1,
+        name_provider: 'Provider 1'
+    },
+    {
+        id: 3,
+        number_invoice: '123123',
+        quantity: 10,
+        buy_price: 5000,
+        sale_price: 6000,
+        expiration_date: '02/04/2024',
+        date_order: '02/04/2024',
+        product: 3,
+        name_product: 'Product 3',
+        provider: 1,
+        name_provider: 'Provider 1'
+    },
+    {
+        id: 4,
+        number_invoice: '123123',
+        quantity: 30,
+        buy_price: 1290000,
+        sale_price: 1500000,
+        expiration_date: '02/04/2024',
+        date_order: '02/04/2024',
+        product: 4,
+        name_product: 'Product 4',
+        provider: 1,
+        name_provider: 'Provider 1'
+    }); */
+
+
+
+
 document.addEventListener('DOMContentLoaded', function () {
     var dateInput = document.querySelector('input[name="date_order"]');
     dateInput.setAttribute('max', today);
+    //console.log(products);
+    //updateTable(products);
 
     form = document.getElementById('formOrder');
     btn_add_list = document.getElementById('btn_add_list');
@@ -47,20 +105,20 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await response.json();
             console.log('Data: ', data);
             if (!data.success) {
-                products.splice(0,products.length)
-                data.error_item.forEach(item=>{
+                products.splice(0, products.length)
+                data.error_item.forEach(item => {
                     products.push(item['order_item']);
-                    console.log('Error descrip: ',item['errors']);
-                    console.log('Item: ',item['order_item']);
+                    console.log('Error descrip: ', item['errors']);
+                    console.log('Item: ', item['order_item']);
                 });
                 console.log('List item error: ', products);
-                updateTable(products); 
+                updateTable(products);
 
             } else {
-                products.splice(0,products.length);
+                products.splice(0, products.length);
                 updateTable(products);
-                document.querySelector('#tableNewOrders').setAttribute('hidden','true');
-                btn_save.setAttribute('hidden','true');s
+                document.querySelector('#tableNewOrders').setAttribute('hidden', 'true');
+                btn_save.setAttribute('hidden', 'true'); s
                 console.log('save orders ', response.save_item);
             }
         } catch (error) {
@@ -151,23 +209,46 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateTable(products_up) {
+        let totalBuy = 0.0;
+        let totalSale = 0.0;
         const tbody = document.querySelector('#tableNewOrders tbody');
         tbody.innerHTML = '';
 
         products_up.forEach(product => {
             const tr = document.createElement('tr');
+
             const th_id = document.createElement('th');
             th_id.textContent = product.id;
+
             const td_name_product = document.createElement('td');
             td_name_product.textContent = product.name_product;
+
             const td_quantity = document.createElement('td');
             td_quantity.textContent = product.quantity;
+
             const td_buy_price = document.createElement('td');
-            td_buy_price.textContent = product.buy_price;
+            td_buy_price.textContent = formatNumber(product.buy_price);
+
+            const td_subtotal_buy = document.createElement('td');
+            const subTotalBuy = parseFloat(product.buy_price) * parseFloat(product.quantity);
+            totalBuy += subTotalBuy;
+            td_subtotal_buy.textContent = formatNumber(subTotalBuy);
+
             const td_sale_price = document.createElement('td');
-            td_sale_price.textContent = product.sale_price;
+            td_sale_price.textContent = formatNumber(product.sale_price);
+
+            const td_subtotal_sale = document.createElement('td');
+            const subTotalSale = parseFloat(product.sale_price) * parseFloat(product.quantity);
+            totalSale += subTotalSale;
+            td_subtotal_sale.textContent = formatNumber(subTotalSale);
+
+            const td_gains_gross = document.createElement('td');
+            const totalGainsGross = subTotalSale - subTotalBuy;
+            td_gains_gross.textContent = formatNumber(totalGainsGross);
+
             const td_name_provider = document.createElement('td');
             td_name_provider.textContent = product.name_provider;
+
             const td_options = document.createElement('td');
 
             const btn_edit = document.createElement('button');
@@ -182,18 +263,53 @@ document.addEventListener('DOMContentLoaded', function () {
             btn_delete.addEventListener('click', () => deleteOrder(product.id));
             td_options.appendChild(btn_delete);
 
+
             tr.appendChild(th_id);
             tr.appendChild(td_name_product);
             tr.appendChild(td_quantity);
             tr.appendChild(td_buy_price);
+            tr.appendChild(td_subtotal_buy);
             tr.appendChild(td_sale_price);
+            tr.appendChild(td_subtotal_sale);
+            tr.appendChild(td_gains_gross);
             tr.appendChild(td_name_provider);
             tr.appendChild(td_options);
 
             tbody.appendChild(tr);
         });
+        const rowTotal = `<tr>
+                                <td>Total compra</td>
+                                <td>${formatNumber(totalBuy)}</td>
+                            </tr>
+                            <tr>
+                                <td>Total venta</td>
+                                <td>${formatNumber(totalSale)}</td>
+                            </tr>
+                            <tr class="table-success">
+                                <td>Ganancia bruta</td>
+                                <td>${formatNumber(parseFloat(totalSale) - parseFloat(totalBuy))}</td>
+                            </tr>`;
+        const tbodytotal = document.querySelector('#table-totales tbody')
+        tbodytotal.innerHTML = '';
+        tbodytotal.innerHTML = rowTotal;
         document.querySelector('#tableNewOrders').removeAttribute('hidden');
         btn_save.removeAttribute('hidden');
+    }
+
+    function formatNumber(numero) {
+        /* // Convierte el número a string
+        const partes = numero.toString().split('.');
+        // Formatea la parte entera con puntos
+        partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        // Devuelve el número formateado
+        return partes.join(','); */
+
+        return numero.toLocaleString(undefined, {
+            style: 'currency',
+            currency: 'COP',
+            minimumFractionDigits: 2, // Muestra siempre dos decimales
+            maximumFractionDigits: 2  // Limita a dos decimales
+        });
     }
 
     form.addEventListener('submit', function (e) {
@@ -241,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const number_invoice = document.querySelector('[name="number_invoice"]').value;
         const quantity = parseFloat(document.querySelector('[name="quantity"]').value);
         const buy_price = parseFloat(document.querySelector('[name="buy_price"]').value);
-        const sale_price = parseFloat(document.querySelector('[name="sale_price"]').value)||0;
+        const sale_price = parseFloat(document.querySelector('[name="sale_price"]').value) || 0;
         const expiration_date = document.querySelector('[name="expiration_date"]').value;
         const date_order = document.querySelector('[name="date_order"]').value;
 
@@ -311,7 +427,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
-                }                
+                }
             });
 
             if (!response.ok) {

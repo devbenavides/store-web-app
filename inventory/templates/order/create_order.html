@@ -6,8 +6,9 @@
     var searchCodeProduct = "{{searchCodeProduct}}";
     var create_order = "{{create_order}}";
     var edit_order_url = "{{edit_order_url}}"
-    
+
 </script>
+>
 <script src="{% static 'js/create_order.js' %}"></script>
 
 <main class="container">
@@ -24,17 +25,17 @@
                 </div>
                 <div class="valid-feedback" id="number_invoice">
                     ok
-                  </div>
+                </div>
             </div>
             <div class="col-md-4">
                 {{form.provider.label}}
                 {{form.provider}}
-                <div class="invalid-feedback" >Seleccione un proveedor.</div>                
+                <div class="invalid-feedback">Seleccione un proveedor.</div>
             </div>
             <div class="col-md-4">
                 {{form.date_order.label}}
                 {{form.date_order}}
-                <div class="invalid-feedback" id="e_date_order" >
+                <div class="invalid-feedback" id="e_date_order">
                     Seleccione una fecha.
                 </div>
             </div>
@@ -54,7 +55,7 @@
                 <div class="invalid-feedback" id="e_product">
                     Seleccione un producto.
                 </div>
-                
+
             </div>
             <div class="col-md-4">
                 {{form.quantity.label}}
@@ -78,7 +79,7 @@
                 <div class="invalid-feedback" id="e_sale_price">
                     Ingrese el precio de venta.
                 </div>
-                
+
             </div>
             <div class="col-md-4">
                 {{form.expiration_date.label}}
@@ -91,34 +92,57 @@
         <div class="row ">
             <div class="col-md-12">
                 <button type="submit" id="btn_add_list" class="btn btn-primary">Agregar</button>
-            
+
                 <button type="button" hidden id="btn_save_changes" class="btn btn-success">Guardar Cambios</button>
-            
+
                 <button type="button" hidden id="btn_cancel" class="btn btn-danger">Cancelar</button>
             </div>
         </div>
     </form>
     <div>
-        <table class="table" id="tableNewOrders" hidden>
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Producto</th>
-                    <th scope="col">Cantidad</th>
-                    <th scope="col">Precio de compra</th>
-                    <th scope="col">Precio de venta</th>
-                    <th scope="col">Proveedor</th>
-                    <th scope="col"></th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <div class="row "></div>
-            <div class="col-md-12">
-                <button type="button" hidden id="btn_save" class="btn btn-primary">Guardar</button>            
-                <button type="button" hidden id="btn_clear_table" class="btn btn-danger">Cancelar</button>
-            </div>
+        <div class="container mt-4">
+            <table class="table table-sm" id="tableNewOrders" hidden>
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Producto</th>
+                        <th scope="col">Cantidad</th>
+                        <th scope="col">Precio de compra</th>
+                        <th scope="col">Subtotal compra</th>
+                        <th scope="col">Precio de venta</th>
+                        <th scope="col">Subtotal venta</th>
+                        <th scope="col">Ganancia bruta</th>
+                        <th scope="col">Proveedor</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
         </div>
+        </table>
+
+        <div class="container mt-4" id="container-totales">
+            <div class="row">
+                <div class="col-7">
+                    Informacion general
+                </div>
+                <div class="col-5 justify-content-end">
+                    <table class="table table-sm" id="table-totales">
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="row "></div>
+        <div class="col-md-12">
+            <button type="button" hidden id="btn_save" class="btn btn-primary">Guardar</button>
+            <button type="button" hidden id="btn_clear_table" class="btn btn-danger">Cancelar</button>
+        </div>
+    </div>
     </div>
 </main>
 {% include 'modal_confirm.html' %}
