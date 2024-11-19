@@ -1,0 +1,190 @@
+{% extends 'nav/base.html' %}
+{% load static %}
+{% block content %}
+<script src="{% static 'js/invoice.js' %}"></script>
+<script>var searchCodeProduct = "{{searchCodeProduct}}";</script>
+<style>
+    .left-cards {
+        height: 100%;
+    }
+
+    .right-card {
+        height: 100%;
+    }
+
+    .column-left {
+        margin-right: 1px;
+    }
+
+    span.form-control {
+        background-color: #f3f1f1;
+        border: 1px solid #ccc;
+        cursor: not-allowed;
+    }
+</style>
+<main class="container">
+    <form action="" class="row">
+        <div class="col-md-9 d-flex flex-column left-cards">
+            <div class="card mb-2">
+                <h6 class="card-header">cliente</h6>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {{form_invoice.id_client.label}}
+                            <div class="input-group">
+                                {{form_invoice.id_client}}
+                                <button type="button" class="btn btn-primary">Agregar</button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            {{form_invoice.balance.label}}
+                            {{form_invoice.balance}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-2">
+                <h6 class="card-header">Productos</h6>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{form_sale.code_product.label}}
+                            <div class="input-group">
+                                {{form_sale.code_product}}
+                                <button type="button" id="btnSearchProduct"
+                                    class="btn btn-outline-primary">Buscar</button>
+                                <button type="button" id="btnSearchProductName" class="btn btn-outline-info">Buscar DB</button>
+                            </div>
+                        </div>
+                    </div>
+                    <table class="table table-sm" id="tableProducts">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Producto</th>
+                                <th scope="col">Cantidad</th>
+                                <th scope="col">Valor Unitario</th>
+                                <th scope="col">Total</th>
+                                <th scope="col">Iva</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 right-card">
+            <div class="card mb-2">
+                <!-- <h4 class="card-header">factura</h4> -->
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label for="inputText">Factura:</label>
+                        </div>
+                        <div class="col-8">
+                            <span class="form-control">FAC-AB123999123</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <label for="inputText">Fecha:</label>
+                        </div>
+                        <div class="col-8">
+                            <span class="form-control">15-11-2024</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label for="inputText">SubTotal:</label>
+                        </div>
+                        <div class="col-8">
+                            <span class="form-control" id="span_subtotal">0</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label for="inputText">Descuento:</label>
+                        </div>
+                        <div class="col-8">
+                            <span class="form-control">10%</span>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label for="inputText">SubTotal Base:</label>
+                        </div>
+                        <div class="col-8">
+                            <span class="form-control">123.123.456</span>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label for="inputText">Iva (19%):</label>
+                        </div>
+                        <div class="col-8">
+                            <span class="form-control">123.123.456</span>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label for="inputText">Total a Pagar:</label>
+                        </div>
+                        <div class="col-8">
+                            <span class="form-control">123.123.456</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            {{form_invoice.payment_method.label}}
+                        </div>
+                        <div class="col-8">
+                            {{form_invoice.payment_method}}
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            {{form_invoice.cash_received.label}}
+                        </div>
+                        <div class="col-8">
+                            {{form_invoice.cash_received}}
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label for="inputText">Cambio:</label>
+                        </div>
+                        <div class="col-8">
+                            <span class="form-control">25.300</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <button type="button" class="btn btn-primary">Terminar Venta</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- <h4>Datos del cliente</h4>
+        <div class="row mb-3">
+            
+            <div class="col-md-4">
+
+            </div>
+            <div class="col-md-4"></div>
+        </div> -->
+    </form>
+</main>
+<div id="modalContainer"></div>
+{% endblock %}

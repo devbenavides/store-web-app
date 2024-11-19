@@ -38,10 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'home',
-    'core',
-    'authentication',
-    'inventory',
+    'apps.home',
+    'apps.core',
+    'apps.authentication',
+    'apps.inventory',
+    'apps.sales',
+    'apps.clients'
 ]
 
 MIDDLEWARE = [
@@ -127,8 +129,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'inventory/static',
-    BASE_DIR / 'core/static',
+    BASE_DIR / 'apps/inventory/static',
+    BASE_DIR / 'apps/core/static',
+    BASE_DIR / 'apps/sales/static', 
 ]
 
 LOGIN_URL = '/auth/signin'
