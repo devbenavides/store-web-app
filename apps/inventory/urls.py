@@ -13,7 +13,7 @@ urlpatterns = [
     path('product/<int:product_id>/', product_views.detailProduct, name='detail_product'),
     path('product/delete/<int:product_id>/', product_views.deleteProduct, name='delete_product'),
     path('product/search-product/', product_views.searchCodeProduct, name='search_code_product'),
-    #path('product/search-name-product/', product_views.searchCodeProduct, name='search_code_product'),
+    path('product/search-name-category/', product_views.searchNameCategoryProduct, name='search_name_category'),
 
 
     path('provider/', provider_views.getAllProvider,name='list_providers'),

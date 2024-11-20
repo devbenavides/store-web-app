@@ -4,6 +4,7 @@ from ..models.category import Category
 from ..forms.product_forms import ProductForm
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.urls import reverse
 
 # Create your views here.
 
@@ -88,3 +89,18 @@ def searchCodeProduct(request):
             return JsonResponse(data)
         except ValueError:
             return JsonResponse({'error':'Producto no encontrado'},status=404)
+        
+def searchNameCategoryProduct(request):
+    
+    if 'name_category_product' in request.GET:
+        name_category_product = request.GET.get('name_category_product')
+        try:
+            products = Product.objects.all()
+
+            products_list = products.filter(
+                models.Q(name_product_icontains=name_category_product)|
+                models.Q(category_name_category_icontains=name_category_product)
+            )
+            return JsonResponse(products_list)
+        except ValueError:
+            return JsonResponse({'error':'Error en la busqueda por nombre o categoria'})

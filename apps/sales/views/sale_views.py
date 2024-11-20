@@ -8,5 +8,6 @@ def gertAllSale(request):
     return render(request,'sale.html',{'form_invoice':InvoiceForm,'form_sale':SaleForm,'searchCodeProduct':searchCodeProduct})
 
 def searchNameCategoryProduct(request):
+    searchNameCategory = reverse('search_name_category')
     if request.method == 'GET':
-       return render(request,'search_product.html')
+       return render(request,'search_product.html',{'searchNameCategory':searchNameCategory})

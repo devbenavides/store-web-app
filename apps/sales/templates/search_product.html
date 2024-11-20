@@ -1,6 +1,6 @@
-
-<div class="modal fade" id="modalSearchNameProduct" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+<div class="modal fade" id="modalSearchNameProduct" tabindex="-1" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-md">
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-5" id="exampleModalLabel">Buscar Producto</h1>
@@ -10,11 +10,33 @@
                 <div class="modal-body" id="modal-body">
                     {% csrf_token %}
                     <h4 class="title">Codigo o categoria Producto</h4>
-                    
+                    <div class="row mb-3">
+                        <label for="name_product" class="form-label">Ingrese el nombre o categoria del producto</label>
+                        <div class="col-md-12">
+                            <div class="input-group">
+                                <input type="text" id="name_product" class="form-control">
+                                <button type="button" id="btnSearchName" class="btn btn-primary">Buscar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <table class="table table-sm" id="tableProducts">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Producto</th>
+                                    <th scope="col">Categoria</th>
+                                    <th scope="col">Valor Unitario</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn btn-success" >Guardar</button>
+                    
                 </div>
             </form>
         </div>
