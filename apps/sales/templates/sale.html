@@ -2,8 +2,9 @@
 {% load static %}
 {% block content %}
 <script src="{% static 'js/invoice.js' %}"></script>
-<script>var searchCodeProduct = "{{searchCodeProduct}}";
-    var searchNameCategory = "{{searchNameCategory}}"
+<script>
+    var searchCodeProduct = "{{ searchCodeProduct }}";
+    var searchNameCategory = "{{ searchNameCategory }}"
 </script>
 <style>
     .left-cards {
@@ -23,6 +24,11 @@
         border: 1px solid #ccc;
         cursor: not-allowed;
     }
+
+    .selected {
+        background-color: #121213;
+        color: white;
+      }
 </style>
 <main class="container">
     <form action="" class="row">

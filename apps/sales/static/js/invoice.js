@@ -1,14 +1,12 @@
 
 let products = [];
-
+let rowSelected = null;
 
 
 document.addEventListener('DOMContentLoaded', function () {
     const modalContainer = document.getElementById('modalContainer');
 
-    async function searchProductByCode() {
-        var codeProductInput = document.querySelector('input[name="code_product"]');
-        var code_product = codeProductInput.value.trim();
+    async function searchProductByCode(code_product) {       
 
         try {
             const response = await fetch(`${searchCodeProduct}?code_product=${encodeURIComponent(code_product)}`, {
@@ -28,7 +26,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.error) {
                 console.log(`Resultado ${data}`)
             } else {
-                console.log(data);
                 validExistsList(data);
             }
 
@@ -43,30 +40,61 @@ document.addEventListener('DOMContentLoaded', function () {
         var nameProduct = document.getElementById('name_product');
         if (e.target && e.target.id === 'btnSearchName') {
             e.preventDefault();
-            console.log('name ', nameProduct.value);
-            searchNameCategoryProduct(e.target.value);
+            const nameProductCategory = nameProduct.value
+            searchNameCategoryProduct(nameProductCategory);
         }
     });
 
-    modalContainer.addEventListener('keydown', async(e) => {
+    modalContainer.addEventListener('shown.bs.modal', function () {
+        const input = document.getElementById('name_product');
+        input.focus(); // Da foco al input
+      });
+
+    modalContainer.addEventListener('keydown', (e) => {
         if (e.target.id === 'name_product' && e.key === 'Enter') {
             e.preventDefault();
-            console.log('name ', e.target.value);
             searchNameCategoryProduct(e.target.value);
         }
 
-        return false;
+        const tablaBody = document.querySelector('#table_products tbody');
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            const filas = Array.from(tablaBody.rows); // Convertir las filas en un array
+            let indiceSeleccionado = filas.indexOf(rowSelected);
+
+            // Moverse hacia abajo
+            if (e.key === 'ArrowDown') {
+                indiceSeleccionado = Math.min(filas.length - 1, indiceSeleccionado + 1);
+            }
+            // Moverse hacia arriba
+            if (e.key === 'ArrowUp') {
+                indiceSeleccionado = Math.max(0, indiceSeleccionado - 1);
+            }
+
+            // Seleccionar la fila correspondiente
+            selectRow(filas[indiceSeleccionado]);
+        }
+
+    
+        if (e.key === 'Enter' && rowSelected) {
+            // Obtener el data-id de la fila seleccionada
+            const code_product = rowSelected.dataset.product_id.trim();
+            searchProductByCode(code_product);
+            rowSelected = null;
+            closeModal();
+        }
     });
 
     document.querySelector('input[name="code_product"]').addEventListener('keypress', (it) => {
         if (it.key === 'Enter') {
             it.preventDefault();
-            searchProductByCode()
+            searchProductByCode(it.target.value)
         }
     });
 
     document.getElementById('btnSearchProduct').addEventListener('click', () => {
-        searchProductByCode()
+        var codeProductInput = document.querySelector('input[name="code_product"]');
+        var code_product = codeProductInput.value.trim();
+        searchProductByCode(code_product)
     })
 
     function validExistsList(data) {
@@ -162,17 +190,16 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     async function searchNameCategoryProduct(name_category_product) {
-        console.log('function search ',name_category_product);
         //validar funcion para buscar producto
         try {
-            const response = await fetch(`${searchNameCategory}?name_category_product=${encodeURIComponent(name_category_product)}`,{
-                method:'GET',
-                headers:{
+            const response = await fetch(`${searchNameCategory}?name_category_product=${encodeURIComponent(name_category_product)}`, {
+                method: 'GET',
+                headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
                 }
             });
-            if(!response.ok){
+            if (!response.ok) {
                 throw new Error(`Http Error Status ${response.status}`);
             }
             const data = await response.json();
@@ -180,18 +207,77 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.error) {
                 console.log(`Resultado error ${data}`)
             } else {
-                console.log(data);
-                
+                loadDataSearch(data);
             }
         } catch (error) {
-            
+
         }
     }
+
+    function loadDataSearch(data) {
+        const tbody = document.querySelector('#table_products tbody');
+        tbody.innerHTML = '';
+
+        data.product_list.forEach(product => {
+            const tr = document.createElement('tr');
+            tr.dataset.product_id = product.code_product
+
+            const th_id = document.createElement('th');
+            th_id.textContent = product.id;
+
+            const td_code_product = document.createElement('td')
+            td_code_product.textContent = product.code_product
+
+            const td_name_product = document.createElement('td');
+            td_name_product.textContent = product.name_product;
+
+            const td_name_category = document.createElement('td');
+            td_name_category.textContent = product.name_category;
+
+            const td_unit_sale_price = document.createElement('td');
+            td_unit_sale_price.textContent = product.unit_sale_price;
+
+
+            tr.appendChild(th_id);
+            tr.appendChild(td_code_product);
+            tr.appendChild(td_name_product);
+            tr.appendChild(td_name_category);
+            tr.appendChild(td_unit_sale_price);
+
+            tbody.appendChild(tr);
+        });
+
+        tbody.addEventListener('click', (event) => {
+            const row = event.target.closest('tr');
+            if (row) {
+                selectRow(row);
+            }
+        });
+    }
+
+    
+    function selectRow(row) {
+        if (rowSelected) {
+            rowSelected.classList.remove('table-active')
+        }
+
+        row.classList.add('table-active');
+        rowSelected = row;
+    }
+
 
     function formatNumber(numero) {
         const partes = numero.toString().split('.');
         partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         return partes.join(',');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('modalSearchNameProduct');
+        const bootstrapModal = bootstrap.Modal.getInstance(modal);
+        if (bootstrapModal) {
+            bootstrapModal.hide();
+        }
     }
 
 
