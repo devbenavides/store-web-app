@@ -1,13 +1,21 @@
 
 let products = [];
 let rowSelected = null;
+let subTotal = 0.0;
+let discount = 0.0;
+let valDiscount = 0.1;
+let subTotalBase = 0.0;
+let totalIva = 0.0;
+let valIva = 0.0;
+let total = 0.0;
 
 
 document.addEventListener('DOMContentLoaded', function () {
     const modalContainer = document.getElementById('modalContainer');
+    const inputCode = document.querySelector('input[name="code_product"]');
+    inputCode.focus();
 
-    async function searchProductByCode(code_product) {       
-
+    async function searchProductByCode(code_product) {
         try {
             const response = await fetch(`${searchCodeProduct}?code_product=${encodeURIComponent(code_product)}`, {
                 method: 'GET',
@@ -29,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 validExistsList(data);
             }
 
-
         } catch (error) {
             console.error(`Fetch error: ${error}`);
         }
@@ -48,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
     modalContainer.addEventListener('shown.bs.modal', function () {
         const input = document.getElementById('name_product');
         input.focus(); // Da foco al input
-      });
+    });
 
     modalContainer.addEventListener('keydown', (e) => {
         if (e.target.id === 'name_product' && e.key === 'Enter') {
@@ -56,31 +63,54 @@ document.addEventListener('DOMContentLoaded', function () {
             searchNameCategoryProduct(e.target.value);
         }
 
-        const tablaBody = document.querySelector('#table_products tbody');
+        const bodyTableProducts = document.querySelector('#table_products tbody');
         if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-            const filas = Array.from(tablaBody.rows); // Convertir las filas en un array
+            const filas = Array.from(bodyTableProducts.rows);
             let indiceSeleccionado = filas.indexOf(rowSelected);
 
-            // Moverse hacia abajo
             if (e.key === 'ArrowDown') {
                 indiceSeleccionado = Math.min(filas.length - 1, indiceSeleccionado + 1);
             }
-            // Moverse hacia arriba
             if (e.key === 'ArrowUp') {
                 indiceSeleccionado = Math.max(0, indiceSeleccionado - 1);
             }
-
-            // Seleccionar la fila correspondiente
             selectRow(filas[indiceSeleccionado]);
         }
 
-    
+
         if (e.key === 'Enter' && rowSelected) {
             // Obtener el data-id de la fila seleccionada
             const code_product = rowSelected.dataset.product_id.trim();
             searchProductByCode(code_product);
             rowSelected = null;
             closeModal();
+        }
+    });
+
+    document.getElementById('tableProducts').addEventListener('click',(event)=>{
+        const target = event.target;
+        console.log('id TD ',target.closest("tr").id);
+        
+
+        if(target.tagName === 'TD' && target.classList.contains('editable')){
+            const originalText = target.innerText;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = originalText;
+            input.className = 'form-control';
+            target.innerHTML = '';
+            target.appendChild(input);
+
+            input.addEventListener('blur',()=>{
+                target.innerHTML = input.value || originalText;
+            });
+
+            input.addEventListener('keydown',(e)=>{
+                if(e.key === 'Enter'){
+                    target.innerHTML = input.value || originalText;
+                }
+            });
+
         }
     });
 
@@ -116,10 +146,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const tbody = document.querySelector('#tableProducts tbody');
         tbody.innerHTML = '';
-        let totals = 0.0;
+        
+        subTotal = 0.0;
+        discount = 0.0;
+        valDiscount = 0.0;
+        subTotalBase = 0.0;
+        totalIva = 0.0;
+        valIva = 0.0;
+        total = 0.0;
 
         products_up.forEach(product => {
             const tr = document.createElement('tr');
+            tr.id = product.id;
 
             const th_id = document.createElement('th');
             th_id.textContent = product.id;
@@ -128,6 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
             td_name_product.textContent = product.name_product;
 
             const td_quantity = document.createElement('td');
+            td_quantity.classList.add('editable');
             td_quantity.textContent = product.quantity;
 
             const td_unit_sale_price = document.createElement('td');
@@ -135,9 +174,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const td_total = document.createElement('td');
             const totalSale = parseFloat(product.unit_sale_price) * parseFloat(product.quantity);
-            totals += totalSale
-            document.getElementById('span_subtotal').innerHTML = formatNumber(totals);
             td_total.textContent = formatNumber(totalSale);
+
+            subTotal += totalSale
+            discount = subTotal * valDiscount;
+            subTotalBase = subTotal - discount;
+            totalIva = subTotalBase * valIva;
+            total = subTotal + totalIva;
+
+            document.getElementById('span_subtotal').innerHTML = formatNumber(subTotal);
+            document.getElementById('span_discount').textContent = formatNumber(discount);
+            document.getElementById('span_subtotal_base').innerHTML = formatNumber(subTotalBase);
+            document.getElementById('span_total_iva').innerHTML = formatNumber(totalIva);
+            document.getElementById('span_total').innerHTML = formatNumber(total);
 
             const td_iva = document.createElement('td');
             td_iva.textContent = '19%';
@@ -171,6 +220,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
+    document.querySelector('[name="cash_received"]').addEventListener('keypress', (it) => {
+        if (it.key === 'Enter') {
+            it.preventDefault();
+            const cashChange = document.getElementById('cash_change');
+            cashChange.textContent = parseFloat(it.target.value)-total;
+        }
+
+    });
+
+
     document.getElementById('btnSearchProductName').addEventListener('click', function () {
         fetch(`/sales/search-name-product/`)
             .then(response => response.text())
@@ -190,7 +249,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     async function searchNameCategoryProduct(name_category_product) {
-        //validar funcion para buscar producto
         try {
             const response = await fetch(`${searchNameCategory}?name_category_product=${encodeURIComponent(name_category_product)}`, {
                 method: 'GET',
@@ -255,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    
+
     function selectRow(row) {
         if (rowSelected) {
             rowSelected.classList.remove('table-active')
