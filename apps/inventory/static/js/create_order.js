@@ -435,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log(`Resultado ${data}`)
             } else {
                 console.log(data);
-                
+
                 document.querySelector('select[name="product"').value = data.id;
                 document.querySelector('select[name="product"').classList.add('is-valid');
             }

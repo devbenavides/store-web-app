@@ -1,5 +1,5 @@
-
 let products = [];
+let id_client = 0;
 let rowSelected = null;
 let subTotal = 0.0;
 let discount = 0.0;
@@ -8,12 +8,20 @@ let subTotalBase = 0.0;
 let totalIva = 0.0;
 let valIva = 0.0;
 let total = 0.0;
+let cash_received = 0.0;
+let cash_change = 0.0;
+let payment_method='';
 
 
 document.addEventListener('DOMContentLoaded', function () {
     const modalContainer = document.getElementById('modalContainer');
     const inputCode = document.querySelector('input[name="code_product"]');
     inputCode.focus();
+
+    const date_now = new Date();
+    const format_date = date_now.toLocaleDateString('en-CA');
+    document.getElementById('span_date').textContent = format_date;
+    document.getElementById('span_number_invoice').textContent = numberInvoice;
 
     async function searchProductByCode(code_product) {
         try {
@@ -54,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     modalContainer.addEventListener('shown.bs.modal', function () {
         const input = document.getElementById('name_product');
-        input.focus(); // Da foco al input
+        input.focus();
     });
 
     modalContainer.addEventListener('keydown', (e) => {
@@ -77,9 +85,10 @@ document.addEventListener('DOMContentLoaded', function () {
             selectRow(filas[indiceSeleccionado]);
         }
 
-
+        /**
+         * Obtener el data-id de la fila seleccionada
+         * */
         if (e.key === 'Enter' && rowSelected) {
-            // Obtener el data-id de la fila seleccionada
             const code_product = rowSelected.dataset.product_id.trim();
             searchProductByCode(code_product);
             rowSelected = null;
@@ -87,32 +96,51 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    document.getElementById('tableProducts').addEventListener('click',(event)=>{
+    /**
+     *  permite editar información en la tabla donde se listan los productos agregados
+     * */
+    document.getElementById('tableProducts').addEventListener('click', (event) => {
         const target = event.target;
-        console.log('id TD ',target.closest("tr").id);
-        
 
-        if(target.tagName === 'TD' && target.classList.contains('editable')){
-            const originalText = target.innerText;
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = originalText;
-            input.className = 'form-control';
+        if (target.tagName === 'TD' && target.classList.contains('editable')) {
+            const originalText = target.textContent || target.innerText;
+            const valueClean = originalText.replace(/[.]/g, '').replace(',', '.');
+
+            const input_new = document.createElement('input');
+            input_new.type = 'number';
+            input_new.value = parseFloat(valueClean);
+            input_new.className = 'form-control';
+
             target.innerHTML = '';
-            target.appendChild(input);
+            target.appendChild(input_new);
 
-            input.addEventListener('blur',()=>{
-                target.innerHTML = input.value || originalText;
+            input_new.addEventListener('blur', () => {
+                saveData(target, input_new.value);
             });
 
-            input.addEventListener('keydown',(e)=>{
-                if(e.key === 'Enter'){
-                    target.innerHTML = input.value || originalText;
+            input_new.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    saveData(target, input_new.value);
                 }
             });
-
+            input_new.focus();
         }
     });
+    /**
+     * función para guardar la información nueva en el array 
+     */
+    function saveData(cell, new_value) {
+        const row = cell.closest('tr');
+        const id = row.dataset.id_product;
+        const input = cell.dataset.field;
+
+        const product = products.find(p => p.id == id);
+
+        if (product) {
+            product[input] = new_value;
+        }
+        updateTable(products);
+    }
 
     document.querySelector('input[name="code_product"]').addEventListener('keypress', (it) => {
         if (it.key === 'Enter') {
@@ -146,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const tbody = document.querySelector('#tableProducts tbody');
         tbody.innerHTML = '';
-        
+
         subTotal = 0.0;
         discount = 0.0;
         valDiscount = 0.0;
@@ -157,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         products_up.forEach(product => {
             const tr = document.createElement('tr');
-            tr.id = product.id;
+            tr.dataset.id_product = product.id;
 
             const th_id = document.createElement('th');
             th_id.textContent = product.id;
@@ -168,9 +196,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const td_quantity = document.createElement('td');
             td_quantity.classList.add('editable');
             td_quantity.textContent = product.quantity;
+            td_quantity.dataset.field = 'quantity';
 
             const td_unit_sale_price = document.createElement('td');
+            td_unit_sale_price.classList.add('editable');
             td_unit_sale_price.textContent = formatNumber(product.unit_sale_price);
+            td_unit_sale_price.dataset.field = 'unit_sale_price';
 
             const td_total = document.createElement('td');
             const totalSale = parseFloat(product.unit_sale_price) * parseFloat(product.quantity);
@@ -223,12 +254,88 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('[name="cash_received"]').addEventListener('keypress', (it) => {
         if (it.key === 'Enter') {
             it.preventDefault();
+            cash_received = parseFloat(it.target.value);
             const cashChange = document.getElementById('cash_change');
-            cashChange.textContent = parseFloat(it.target.value)-total;
+            cash_change = cash_received - total;
+            cashChange.textContent = cash_change;
         }
-
     });
 
+    document.getElementById('btn_save').addEventListener('click', () => {
+
+        const input_cash_received = document.querySelector('[name="cash_received"]');
+        cash_received = parseFloat(input_cash_received.value);
+        const cashChange = document.getElementById('cash_change');
+        cash_change = cash_received - total;
+        cashChange.textContent = cash_change;
+        payment_method = document.querySelector('[name="payment_method"]').value;
+
+        if (cash_received > 0 && cash_change >= 0) {
+            /* Swal.fire({
+                title: '¡Operación exitosa!',
+                text: 'Tu formulario ha sido enviado correctamente.',
+                icon: 'warning',
+                confirmButtonText: 'Aceptar',
+                showCancelButton: true,
+                cancelButtonText: 'Volver'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire("Venta finalizada", "ok", "success");
+                } else {
+
+                }
+            }); */
+            saveSales();
+        } else {
+            Swal.fire({
+                title: '¡Dinero insuficiente!',
+                text: 'Verifica el dinero recibido',
+                icon: 'info',
+                confirmButtonText: 'Aceptar',
+                allowOutsideClick: true,
+                allowScapeKey: true
+            }).then(() => {
+                setTimeout(() => {
+                    input_cash_received.focus();
+                }, 800);
+            });
+
+        }
+    });
+
+    async function saveSales() {
+        try {
+            const response = await fetch(
+                'create/',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        products,
+                        total,
+                        cash_received,
+                        cash_change,
+                        id_client,
+                        payment_method
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!data.success) {
+                console.log('Error al guardar',data.errors);
+
+            } else {
+                console.log('Guardado');
+            }
+        } catch (error) {
+            console.log('Error ', error.error);
+        }
+    }
 
     document.getElementById('btnSearchProductName').addEventListener('click', function () {
         fetch(`/sales/search-name-product/`)
@@ -322,6 +429,47 @@ document.addEventListener('DOMContentLoaded', function () {
         row.classList.add('table-active');
         rowSelected = row;
     }
+
+
+    async function searchClient(numberId) {
+        try {
+            const response = await fetch(`${searchClientNumberId}?number_identification=${encodeURIComponent(numberId)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Http Error Status ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (data.error) {
+                console.log(`Resultado ${data}`);
+
+            } else {
+                const divInfo = document.getElementById('info-client');
+                id_client = data.id;
+                divInfo.innerHTML = `
+                    <p>${data.type_identification} ${data.number_identification}</p>
+                    <p>${data.first_name} ${data.last_name}</p>
+                    <p>${data.phone_number}</p>
+                    <p>${data.email_address}</p>
+                `;
+            }
+        } catch (error) {
+            console.log(`Fetch error: ${error}`);
+
+        }
+    }
+    document.querySelector('input[name="id_client"]').addEventListener('keypress', (it) => {
+        if (it.key === 'Enter') {
+            it.preventDefault();
+            searchClient(it.target.value)
+        }
+    });
 
 
     function formatNumber(numero) {

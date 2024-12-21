@@ -5,7 +5,7 @@ from ..models.invoice import Invoice
 class InvoiceForm(forms.ModelForm):
 
     id_client = forms.IntegerField(
-        label='ID Cliente',
+        label='Numero de Identificion del Cliente',
         required=True,
         widget=forms.NumberInput(
             attrs={

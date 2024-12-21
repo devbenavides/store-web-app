@@ -1,10 +1,13 @@
 {% extends 'nav/base.html' %}
 {% load static %}
 {% block content %}
-<script src="{% static 'js/invoice.js' %}"></script>
+<script type="module" src="{% static 'js/invoice.js' %}"></script>
 <script>
     var searchCodeProduct = "{{ searchCodeProduct }}";
-    var searchNameCategory = "{{ searchNameCategory }}"
+    var searchNameCategory = "{{ searchNameCategory }}";
+    var searchClientNumberId = "{{ searchClientNumberId }}";
+    var today = "{{ today|date:'d-m-Y' }}";
+    var numberInvoice = "{{numberInvoice}}";
 </script>
 <style>
     .left-cards {
@@ -28,7 +31,7 @@
     .selected {
         background-color: #121213;
         color: white;
-      }
+    }
 </style>
 <main class="container">
     <form action="" class="row">
@@ -43,6 +46,7 @@
                                 {{form_invoice.id_client}}
                                 <button type="button" class="btn btn-primary">Agregar</button>
                             </div>
+                            <div id="info-client">Datos</div>
                         </div>
                         <div class="col-md-4">
                             {{form_invoice.balance.label}}
@@ -61,7 +65,8 @@
                                 {{form_sale.code_product}}
                                 <button type="button" id="btnSearchProduct"
                                     class="btn btn-outline-primary">Buscar</button>
-                                <button type="button" id="btnSearchProductName" class="btn btn-outline-info">Buscar DB</button>
+                                <button type="button" id="btnSearchProductName" class="btn btn-outline-info">Buscar
+                                    DB</button>
                             </div>
                         </div>
                     </div>
@@ -91,7 +96,7 @@
                             <label for="inputText">Factura:</label>
                         </div>
                         <div class="col-8">
-                            <span class="form-control">FAC-AB123999123</span>
+                            <span class="form-control" id="span_number_invoice"></span>
                         </div>
                     </div>
                     <div class="row">
@@ -99,7 +104,7 @@
                             <label for="inputText">Fecha:</label>
                         </div>
                         <div class="col-8">
-                            <span class="form-control">15-11-2024</span>
+                            <span class="form-control" id="span_date">0</span>
                         </div>
                     </div>
                 </div>
@@ -121,7 +126,7 @@
                         </div>
                         <div class="col-8">
                             <!-- <span class="form-control" id="span_discount">10%</span> -->
-                            <input type="number" id="span_discount" class="form-control"/>
+                            <input type="number" id="span_discount" class="form-control" />
                         </div>
                     </div>
                     <div class="row mb-2">
@@ -179,7 +184,7 @@
                     </div>
 
                     <div class="row mb-2">
-                        <button type="button" class="btn btn-primary">Terminar Venta</button>
+                        <button type="button" class="btn btn-primary" id="btn_save">Terminar Venta</button>
                     </div>
                 </div>
             </div>
