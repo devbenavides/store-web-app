@@ -10,7 +10,7 @@ let valIva = 0.0;
 let total = 0.0;
 let cash_received = 0.0;
 let cash_change = 0.0;
-let payment_method='';
+let payment_method = '';
 
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -168,6 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
         updateTable(products);
+        document.querySelector('[name="code_product"]').value = '';
     }
 
     function updateTable(products_up) {
@@ -234,7 +235,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const btn_delete = document.createElement('button');
             btn_delete.textContent = 'Eliminar';
             btn_delete.className = 'btn btn-danger';
-            //btn_delete.addEventListener('click', () => deleteOrder(product.id));
+            btn_delete.type = 'button';
+            btn_delete.addEventListener('click', () => deleteProduct(product.id));
             td_options.appendChild(btn_delete);
 
 
@@ -249,6 +251,7 @@ document.addEventListener('DOMContentLoaded', function () {
             tbody.appendChild(tr);
         });
 
+        document.getElementById('btn_save').removeAttribute('hidden');
     }
 
     document.querySelector('[name="cash_received"]').addEventListener('keypress', (it) => {
@@ -256,48 +259,72 @@ document.addEventListener('DOMContentLoaded', function () {
             it.preventDefault();
             cash_received = parseFloat(it.target.value);
             const cashChange = document.getElementById('cash_change');
+            if(cash_received>0){
+                cash_change = cash_received - total;
+                cashChange.textContent = cash_change;
+            }            
+            
+        }
+    });
+
+    document.querySelector('[name="cash_received"]').addEventListener('input', (it) => {
+        
+        it.preventDefault();
+        cash_received = parseFloat(it.target.value);
+        const cashChange = document.getElementById('cash_change');
+        if(cash_received>0){
             cash_change = cash_received - total;
             cashChange.textContent = cash_change;
+        }else{
+            cashChange.textContent = 0;
         }
+        
     });
 
     document.getElementById('btn_save').addEventListener('click', () => {
 
         const input_cash_received = document.querySelector('[name="cash_received"]');
-        cash_received = parseFloat(input_cash_received.value);
+        cash_received = input_cash_received.value.trim();
         const cashChange = document.getElementById('cash_change');
-        cash_change = cash_received - total;
+        cash_change = parseFloat(cash_received) - total;
         cashChange.textContent = cash_change;
         payment_method = document.querySelector('[name="payment_method"]').value;
 
-        if (cash_received > 0 && cash_change >= 0) {
-            /* Swal.fire({
-                title: '¡Operación exitosa!',
-                text: 'Tu formulario ha sido enviado correctamente.',
-                icon: 'warning',
-                confirmButtonText: 'Aceptar',
-                showCancelButton: true,
-                cancelButtonText: 'Volver'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Swal.fire("Venta finalizada", "ok", "success");
-                } else {
 
-                }
-            }); */
-            saveSales();
+        let msm = '';
+
+        if (!validListProducts()) {
+            msm += '<li>Ingrese los productos al listado.</li>';
+        }
+        if (products.length > 0 && cash_received === '' || cash_received < total) {
+            msm += '<li>Dinero insuficiente.</li>';
+            document.querySelector('[name="id_client"]').classList.add('is-invalid');
+            document.getElementById('e_id_client').style.display = 'block';
+        }
+        if (id_client === 0) {
+            msm += '<li>Debe buscar el cliente.</li>'
+            document.querySelector('[name="cash_received"]').classList.add('is-invalid');
+        }
+
+
+        if (msm === '') {
+            console.log('ok');
+            //saveSales();
         } else {
-            Swal.fire({
-                title: '¡Dinero insuficiente!',
-                text: 'Verifica el dinero recibido',
-                icon: 'info',
+            const swalCustomButton = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger"
+                },
+                buttonsStyling: false
+            });
+            swalCustomButton.fire({
+                title: '¡Advertencia!',
+                html: '<ul style="padding-left: 20px; list-style-position: inside; margin: 0;">' + msm + '</ul>',
+                icon: 'warning',
                 confirmButtonText: 'Aceptar',
                 allowOutsideClick: true,
                 allowScapeKey: true
-            }).then(() => {
-                setTimeout(() => {
-                    input_cash_received.focus();
-                }, 800);
             });
 
         }
@@ -327,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await response.json();
 
             if (!data.success) {
-                console.log('Error al guardar',data.errors);
+                console.log('Error al guardar', data.errors);
 
             } else {
                 console.log('Guardado');
@@ -471,6 +498,73 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    function validInputs() {
+        let isValid = true;
+        document.querySelectorAll('[required]').forEach(it => {
+            if (!it.value.trim()) {
+                it.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                it.classList.remove('is-invalid', 'is-valid')
+            }
+        });
+        return isValid;
+    }
+
+    function deleteProduct(id) {
+        const idx = products.findIndex(p => p.id === id);
+        console.log(idx);
+
+        const swalCustomButton = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: false
+        });
+        swalCustomButton.fire({
+            title: '¿Estás seguro?',
+            text: 'Está operación es irreversible',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Si, eliminar',
+            cancelButtonText: 'No, cancelar',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (idx !== -1) {
+                    products.splice(idx, 1);
+                    swalCustomButton.fire({
+                        title: 'El producto fue eliminado.',
+                        icon: 'success',
+                        timer: 1500
+                    });
+                    updateTable(products);
+                    if(products.length === 0){
+                        document.getElementById('btn_save').setAttribute('hidden','true');
+                    }
+                }
+
+            }
+        });
+    }
+
+    function validListProducts() {
+        let isValid = true;
+        if (!products.length > 0) {
+            isValid = false;
+        } else {
+
+            products.forEach(it => {
+                if (!it.id > 0) { isValid = false }
+                if (it.name_product.trim() === '') { isValid = false }
+                if (parseFloat(it.quantity) <= 0) { isValid = false }
+                if (parseFloat(it.unit_sale_price) <= 0) { isValid = false }
+
+            });
+        }
+        return isValid;
+    }
 
     function formatNumber(numero) {
         const partes = numero.toString().split('.');

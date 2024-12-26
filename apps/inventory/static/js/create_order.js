@@ -194,8 +194,6 @@ document.addEventListener('DOMContentLoaded', function () {
         modal_confirm.show();
 
         btn_confirm.addEventListener('click', () => {
-            console.log(`products 1 ${products.name_product}`);
-            console.log(`idx ${idx} id ${id}`);
 
             if (idx !== -1) {
                 products.splice(idx, 1);

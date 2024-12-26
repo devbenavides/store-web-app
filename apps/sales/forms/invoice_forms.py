@@ -16,19 +16,6 @@ class InvoiceForm(forms.ModelForm):
             'required': 'Campo obligatorio'
         }
     )
-    code_invoice = forms.CharField(
-        label='Número de Factura',
-        required=True,
-        widget=forms.TextInput(
-            attrs={
-                'class': 'form-control'
-            }
-        ),
-        error_messages={
-            'required': 'Campo obligatorio'
-        }
-    )
-
     options_payment = [
         ('cash', 'Efectivo'),
         ('card', 'Tarjeta')
@@ -47,44 +34,10 @@ class InvoiceForm(forms.ModelForm):
             'required': 'Seleccione un metodo de pago'
         }
     )
-
-    total_invoice = forms.DecimalField(
-        label='Total',
-        widget=forms.NumberInput(
-            attrs={
-                'class': 'form-control'
-            }
-        ),
-        error_messages={
-            'required': 'Campo obligatorio'
-        }
-    )
     cash_received = forms.DecimalField(
         label='Efectivo recibido',
-        widget=forms.NumberInput(
-            attrs={
-                'class': 'form-control'
-            }
-        ),
-        error_messages={
-            'required': 'Campo obligatorio'
-        }
-    )
-    cash_change = forms.DecimalField(
-        label='Cambio',
-        widget=forms.NumberInput(
-            attrs={
-                'class': 'form-control'
-            }
-        ),
-        error_messages={
-            'required': 'Campo obligatorio'
-        }
-    )
-    date_invoice = forms.DateTimeField(
-        label='Fecha',
         required=True,
-        widget=forms.DateTimeInput(
+        widget=forms.NumberInput(
             attrs={
                 'class': 'form-control'
             }
@@ -96,4 +49,4 @@ class InvoiceForm(forms.ModelForm):
 
     class Meta:
         model = Invoice
-        fields = '__all__'
+        fields = ['id_client','payment_method','cash_received']

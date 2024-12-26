@@ -34,7 +34,7 @@
     }
 </style>
 <main class="container">
-    <form action="" class="row">
+    <form action="" class="row" novalidate>
         <div class="col-md-9 d-flex flex-column left-cards">
             <div class="card mb-2">
                 <h6 class="card-header">cliente</h6>
@@ -46,11 +46,8 @@
                                 {{form_invoice.id_client}}
                                 <button type="button" class="btn btn-primary">Agregar</button>
                             </div>
+                            <div class="invalid-feedback" id="e_id_client" hidden>Ingrese el número de identificación del cliente</div>
                             <div id="info-client">Datos</div>
-                        </div>
-                        <div class="col-md-4">
-                            {{form_invoice.balance.label}}
-                            {{form_invoice.balance}}
                         </div>
                     </div>
                 </div>
@@ -172,6 +169,7 @@
                         </div>
                         <div class="col-8">
                             {{form_invoice.cash_received}}
+                            <div class="invalid-feedback">Ingrese la cantidad de dinero</div>
                         </div>
                     </div>
                     <div class="row mb-2">
@@ -184,7 +182,7 @@
                     </div>
 
                     <div class="row mb-2">
-                        <button type="button" class="btn btn-primary" id="btn_save">Terminar Venta</button>
+                        <button type="button" class="btn btn-primary" id="btn_save" hidden>Terminar Venta</button>
                     </div>
                 </div>
             </div>
