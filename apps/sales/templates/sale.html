@@ -34,7 +34,7 @@
     }
 </style>
 <main class="container">
-    <form action="" class="row" novalidate>
+    <form action="" class="row" id="formSales" novalidate>
         <div class="col-md-9 d-flex flex-column left-cards">
             <div class="card mb-2">
                 <h6 class="card-header">cliente</h6>
@@ -46,7 +46,7 @@
                                 {{form_invoice.id_client}}
                                 <button type="button" class="btn btn-primary">Agregar</button>
                             </div>
-                            <div class="invalid-feedback" id="e_id_client" hidden>Ingrese el número de identificación del cliente</div>
+                            <div class="invalid-feedback" id="e_id_client" style="display: none;">Ingrese el número de identificación del cliente</div>
                             <div id="info-client">Datos</div>
                         </div>
                     </div>

@@ -23,6 +23,13 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('span_date').textContent = format_date;
     document.getElementById('span_number_invoice').textContent = numberInvoice;
 
+    /* document.getElementById('formSales').addEventListener('submit',(event)=>{
+        event.preventDefault();
+    });
+    document.getElementById('tableProducts').addEventListener('contextmenu',(event)=>{
+        event.preventDefault();
+    }); */
+
     async function searchProductByCode(code_product) {
         try {
             const response = await fetch(`${searchCodeProduct}?code_product=${encodeURIComponent(code_product)}`, {
@@ -97,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     /**
-     *  permite editar información en la tabla donde se listan los productos agregados
+     *  función para editar información en la tabla donde se listan los productos agregados
      * */
     document.getElementById('tableProducts').addEventListener('click', (event) => {
         const target = event.target;
@@ -110,9 +117,11 @@ document.addEventListener('DOMContentLoaded', function () {
             input_new.type = 'number';
             input_new.value = parseFloat(valueClean);
             input_new.className = 'form-control';
+            input_new.select();
 
             target.innerHTML = '';
             target.appendChild(input_new);
+
 
             input_new.addEventListener('blur', () => {
                 saveData(target, input_new.value);
@@ -133,7 +142,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const row = cell.closest('tr');
         const id = row.dataset.id_product;
         const input = cell.dataset.field;
-
         const product = products.find(p => p.id == id);
 
         if (product) {
@@ -141,14 +149,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         updateTable(products);
     }
-
+/**
+ * buscar poducto por código al presionar la tecla enter
+ */
     document.querySelector('input[name="code_product"]').addEventListener('keypress', (it) => {
         if (it.key === 'Enter') {
             it.preventDefault();
             searchProductByCode(it.target.value)
         }
     });
-
+/**
+ * buscar poducto por código al presionar el boton
+ */
     document.getElementById('btnSearchProduct').addEventListener('click', () => {
         var codeProductInput = document.querySelector('input[name="code_product"]');
         var code_product = codeProductInput.value.trim();
@@ -199,6 +211,8 @@ document.addEventListener('DOMContentLoaded', function () {
             td_quantity.textContent = product.quantity;
             td_quantity.dataset.field = 'quantity';
 
+
+
             const td_unit_sale_price = document.createElement('td');
             td_unit_sale_price.classList.add('editable');
             td_unit_sale_price.textContent = formatNumber(product.unit_sale_price);
@@ -207,6 +221,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const td_total = document.createElement('td');
             const totalSale = parseFloat(product.unit_sale_price) * parseFloat(product.quantity);
             td_total.textContent = formatNumber(totalSale);
+
+            if (totalSale <= 0) {
+                tr.classList.add('table-active');
+            }
 
             subTotal += totalSale
             discount = subTotal * valDiscount;
@@ -225,12 +243,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
             const td_options = document.createElement('td');
-
-            const btn_edit = document.createElement('button');
-            btn_edit.textContent = 'Editar';
-            btn_edit.className = 'btn btn-primary';
-            //btn_edit.addEventListener('click', () => editOrder(product.id));
-            td_options.appendChild(btn_edit);
 
             const btn_delete = document.createElement('button');
             btn_delete.textContent = 'Eliminar';
@@ -259,26 +271,26 @@ document.addEventListener('DOMContentLoaded', function () {
             it.preventDefault();
             cash_received = parseFloat(it.target.value);
             const cashChange = document.getElementById('cash_change');
-            if(cash_received>0){
+            if (cash_received > 0) {
                 cash_change = cash_received - total;
                 cashChange.textContent = cash_change;
-            }            
-            
+            }
+
         }
     });
 
     document.querySelector('[name="cash_received"]').addEventListener('input', (it) => {
-        
+
         it.preventDefault();
         cash_received = parseFloat(it.target.value);
         const cashChange = document.getElementById('cash_change');
-        if(cash_received>0){
+        if (cash_received > 0) {
             cash_change = cash_received - total;
             cashChange.textContent = cash_change;
-        }else{
+        } else {
             cashChange.textContent = 0;
         }
-        
+
     });
 
     document.getElementById('btn_save').addEventListener('click', () => {
@@ -294,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let msm = '';
 
         if (!validListProducts()) {
-            msm += '<li>Ingrese los productos al listado.</li>';
+            msm += '<li>Ingrese y valide los productos del listado</li>';
         }
         if (products.length > 0 && cash_received === '' || cash_received < total) {
             msm += '<li>Dinero insuficiente.</li>';
@@ -540,8 +552,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         timer: 1500
                     });
                     updateTable(products);
-                    if(products.length === 0){
-                        document.getElementById('btn_save').setAttribute('hidden','true');
+                    if (products.length === 0) {
+                        document.getElementById('btn_save').setAttribute('hidden', 'true');
                     }
                 }
 
