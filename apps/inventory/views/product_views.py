@@ -84,7 +84,8 @@ def searchCodeProduct(request):
                 'id':product.id,
                 'code_product': product.code_product,
                 'unit_sale_price':product.unit_sale_price,
-                'name_product': product.name_product
+                'name_product': product.name_product,
+                'stock_product':product.stock_product
             }
             print(data)
             return JsonResponse(data)
@@ -108,7 +109,8 @@ def searchNameCategoryProduct(request):
                 'code_product',
                 'name_product',
                 'name_category',
-                'unit_sale_price')
+                'unit_sale_price',
+                'stock_product')
             
             product_list = list(products)
             

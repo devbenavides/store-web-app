@@ -111,7 +111,7 @@ def createSale(request):
             'errors':errors
         })
     except ValueError:
-        return JsonResponse({'error':'Error fatal'})
+        return JsonResponse({'error':'Error en el servidor'})
 
 
 def generate_code_invoice():

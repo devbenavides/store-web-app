@@ -144,47 +144,86 @@ document.addEventListener('DOMContentLoaded', function () {
         const input = cell.dataset.field;
         const product = products.find(p => p.id == id);
 
-        if (product) {
-            product[input] = new_value;
+        if (input === 'quantity') {
+            if (parseFloat(new_value) > parseFloat(product.stock_product)) {
+                const swalCustomButton = Swal.mixin({
+                    customClass: {
+                        confirmButton: "btn btn-success",
+                        cancelButton: "btn btn-danger"
+                    },
+                    buttonsStyling: false
+                });
+                swalCustomButton.fire({
+                    title: '¡Advertencia!',
+                    html: '<ul style="padding-left: 20px; list-style-position: inside; margin: 0;"> Stock insuficiente</ul>',
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar',
+                    allowOutsideClick: true,
+                    allowScapeKey: true
+                });
+            } else {
+                if (product) {
+                    product[input] = new_value;
+                    updateTable(products);
+                }
+            }
+
+        } else {
+            if (product) {
+                product[input] = new_value;
+                updateTable(products);
+            }
         }
-        updateTable(products);
+
+
     }
-/**
- * buscar poducto por código al presionar la tecla enter
- */
+    /**
+     * buscar poducto por código al presionar la tecla enter
+     */
     document.querySelector('input[name="code_product"]').addEventListener('keypress', (it) => {
         if (it.key === 'Enter') {
             it.preventDefault();
             searchProductByCode(it.target.value)
         }
     });
-/**
- * buscar poducto por código al presionar el boton
- */
+    /**
+     * buscar poducto por código al presionar el boton
+     */
     document.getElementById('btnSearchProduct').addEventListener('click', () => {
         var codeProductInput = document.querySelector('input[name="code_product"]');
         var code_product = codeProductInput.value.trim();
         searchProductByCode(code_product)
-    })
+    });
 
+    /**
+     * validar el stock antes de agregarlo
+     * validar si el producto ya existe en el array
+     * si existe sumar 1 a la cantidad
+     * no existe agregarlo con cantidad 1
+     */
     function validExistsList(data) {
-        const product = products.find(p => p.id === data.id);
-        if (product) {
-            product.quantity += 1;
-        } else {
-            products.push({
-                'id': data.id,
-                'name_product': data.name_product,
-                'quantity': 1,
-                'unit_sale_price': data.unit_sale_price
-            });
+        if (validStockProduct(data)) {
+            const product = products.find(p => p.id === data.id);
+            if (product) {
+                product.quantity += 1;
+            } else {
+
+                products.push({
+                    'id': data.id,
+                    'name_product': data.name_product,
+                    'quantity': 1,
+                    'stock_product': data.stock_product,
+                    'unit_sale_price': data.unit_sale_price
+                });
+            }
+            updateTable(products);
+            document.querySelector('[name="code_product"]').value = '';
         }
-        updateTable(products);
-        document.querySelector('[name="code_product"]').value = '';
+
     }
 
     function updateTable(products_up) {
-
+        console.log('Products ', products_up);
         const tbody = document.querySelector('#tableProducts tbody');
         tbody.innerHTML = '';
 
@@ -293,7 +332,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     });
 
+    /**
+     * guardar la venta
+     */
     document.getElementById('btn_save').addEventListener('click', () => {
+
+        const swalCustomButton = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-success",
+                cancelButton: "btn btn-danger"
+            },
+            buttonsStyling: false
+        });
+        
+        removeClassInvalid();
 
         const input_cash_received = document.querySelector('[name="cash_received"]');
         cash_received = input_cash_received.value.trim();
@@ -310,26 +362,33 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         if (products.length > 0 && cash_received === '' || cash_received < total) {
             msm += '<li>Dinero insuficiente.</li>';
-            document.querySelector('[name="id_client"]').classList.add('is-invalid');
-            document.getElementById('e_id_client').style.display = 'block';
+            document.querySelector('[name="cash_received"]').classList.add('is-invalid');
+
         }
         if (id_client === 0) {
             msm += '<li>Debe buscar el cliente.</li>'
-            document.querySelector('[name="cash_received"]').classList.add('is-invalid');
+            document.querySelector('[name="id_client"]').classList.add('is-invalid');
+            document.getElementById('e_id_client').style.display = 'block';
         }
 
 
         if (msm === '') {
-            console.log('ok');
-            //saveSales();
+            swalCustomButton.fire({
+                title: '¿Estás seguro de guardar la venta?',
+                text: '',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, guardar',
+                cancelButtonText: 'No, cancelar',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    saveSales();
+                }
+            }); 
+            
         } else {
-            const swalCustomButton = Swal.mixin({
-                customClass: {
-                    confirmButton: "btn btn-success",
-                    cancelButton: "btn btn-danger"
-                },
-                buttonsStyling: false
-            });
+            
             swalCustomButton.fire({
                 title: '¡Advertencia!',
                 html: '<ul style="padding-left: 20px; list-style-position: inside; margin: 0;">' + msm + '</ul>',
@@ -343,7 +402,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     async function saveSales() {
-        try {
+        
+        try {           
+
             const response = await fetch(
                 'create/',
                 {
@@ -367,15 +428,53 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!data.success) {
                 console.log('Error al guardar', data.errors);
+                const swalCustomButton = Swal.mixin({
+                    customClass: {
+                        confirmButton: "btn btn-success",
+                        cancelButton: "btn btn-danger"
+                    },
+                    buttonsStyling: false
+                });
+                swalCustomButton.fire({
+                    title: '¡Advertencia!',
+                    html: '<ul style="padding-left: 20px; list-style-position: inside; margin: 0;">Error al guardar la venta</ul>',
+                    icon: 'error',
+                    timer: 1500
+                });
 
             } else {
-                console.log('Guardado');
+                const swalCustomButton = Swal.mixin({
+                    customClass: {
+                        confirmButton: "btn btn-success",
+                        cancelButton: "btn btn-danger"
+                    },
+                    buttonsStyling: false
+                });
+                swalCustomButton.fire({
+                    title: '¡Advertencia!',
+                    html: '<ul style="padding-left: 20px; list-style-position: inside; margin: 0;">Venta guardada</ul>',
+                    icon: 'success',
+                    timer: 1500
+                });
+                resetAll();
             }
         } catch (error) {
             console.log('Error ', error.error);
         }
     }
 
+    function removeClassInvalid() {
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(it => {
+            it.classList.remove('is-invalid');
+        });
+
+        document.getElementById('e_id_client').style.display = 'none';
+    }
+
+    /**
+     * buscar productos por categoria o nombre del mismo
+     */
     document.getElementById('btnSearchProductName').addEventListener('click', function () {
         fetch(`/sales/search-name-product/`)
             .then(response => response.text())
@@ -416,6 +515,35 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (error) {
 
         }
+    }
+
+    /**
+     * validar el stock antes de agregar al listado
+     */
+    function validStockProduct(data) {
+        console.log('validando stock ', data);
+
+        let isValid = true;
+        if (data.stock_product === null || data.stock_product <= 0) {
+            isValid = false;
+            const swalCustomButton = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger"
+                },
+                buttonsStyling: false
+            });
+            swalCustomButton.fire({
+                title: '¡Advertencia!',
+                html: '<ul style="padding-left: 20px; list-style-position: inside; margin: 0;"> Stock insuficiente</ul>',
+                icon: 'warning',
+                confirmButtonText: 'Aceptar',
+                allowOutsideClick: true,
+                allowScapeKey: true
+            });
+        }
+
+        return isValid;
     }
 
     function loadDataSearch(data) {
@@ -469,7 +597,9 @@ document.addEventListener('DOMContentLoaded', function () {
         rowSelected = row;
     }
 
-
+    /**
+     * buscar un cliente
+     */
     async function searchClient(numberId) {
         try {
             const response = await fetch(`${searchClientNumberId}?number_identification=${encodeURIComponent(numberId)}`, {
@@ -480,39 +610,62 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
 
-            if (!response.ok) {
-                throw new Error(`Http Error Status ${response.status}`);
-            }
+
 
             const data = await response.json();
-            if (data.error) {
-                console.log(`Resultado ${data}`);
-
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error(data.message);
+                }
+                throw new Error('Error del servidor')
             } else {
                 const divInfo = document.getElementById('info-client');
                 id_client = data.id;
                 divInfo.innerHTML = `
-                    <p>${data.type_identification} ${data.number_identification}</p>
-                    <p>${data.first_name} ${data.last_name}</p>
-                    <p>${data.phone_number}</p>
-                    <p>${data.email_address}</p>
-                `;
+                            <div class="card mt-4">
+                                <div class="card-body">
+                                    <p class="card-text"><strong>Nombre:</strong> ${data.first_name} ${data.last_name}</p>
+                                    <p class="card-text"><strong>Identificación:</strong> ${data.type_identification} ${data.number_identification}</p>
+                                    <p class="card-text"><strong>Telefono:</strong> ${data.phone_number} - ${data.phone_number_aux}</p>
+                                    <p class="card-text"><strong>Email:</strong> ${data.email_address} </p>
+                                </div>
+                            </div>`;
             }
         } catch (error) {
-            console.log(`Fetch error: ${error}`);
-
+            console.log(`Fetch error: ${error.message}`);
+            const swalCustomButton = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger"
+                },
+                buttonsStyling: false
+            });
+            swalCustomButton.fire({
+                title: '¡Advertencia!',
+                html: '<ul style="padding-left: 20px; list-style-position: inside; margin: 0;">' + error.message + '</ul>',
+                icon: 'error',
+                confirmButtonText: 'Aceptar',
+                allowOutsideClick: true,
+                allowScapeKey: true,
+                timer: 1500
+            });
         }
     }
+
     document.querySelector('input[name="id_client"]').addEventListener('keypress', (it) => {
         if (it.key === 'Enter') {
             it.preventDefault();
             searchClient(it.target.value)
         }
     });
+    document.getElementById('btn_searchClient').addEventListener('click', () => {
+        const numberID = document.querySelector('input[name="id_client"]').value;
+        searchClient(numberID.trim());
+    });
 
-    function validInputs() {
+    function validInputs(form) {
         let isValid = true;
-        document.querySelectorAll('[required]').forEach(it => {
+        form.querySelectorAll('[required]').forEach(it => {
             if (!it.value.trim()) {
                 it.classList.add('is-invalid');
                 isValid = false;
@@ -522,6 +675,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         return isValid;
     }
+
+    document.getElementById('btn_addClient').addEventListener('click', () => {
+        addClient();
+    });
 
     function deleteProduct(id) {
         const idx = products.findIndex(p => p.id === id);
@@ -576,6 +733,121 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
         return isValid;
+    }
+
+    async function addClient() {
+        const response = await fetch('/clients/create-client/');
+        const modalContent = await response.text();
+
+        document.getElementById('modalContainer').innerHTML = modalContent;
+
+        const modal = new bootstrap.Modal(document.getElementById('modalClient'));
+        modal.show()
+    }
+    document.getElementById('modalContainer').addEventListener('submit', async (e) => {
+        if (e.target && e.target.id === 'formClient') {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+            //const data_ = Object.fromEntries(formData.entries());
+
+            let isValid = true;
+            form.querySelectorAll('[required]').forEach(it => {
+                if (!it.value.trim()) {
+                    it.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    it.classList.remove('is-invalid', 'is-valid')
+                }
+            });
+
+            try {
+                if (isValid) {
+                    const action = form.action;
+                    const method = form.method;
+                    const response = await fetch(action, {
+                        method,
+                        headers: {
+                            //'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        //body:JSON.stringify(data_)
+                        body: formData
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        const modal = document.getElementById('modalClient');
+                        const bootstrapModal = bootstrap.Modal.getInstance(modal);
+                        if (bootstrapModal) {
+                            bootstrapModal.hide();
+                        }
+
+                        searchClient(data.number_id);
+
+                        const swalCustomButton = Swal.mixin({
+                            customClass: {
+                                confirmButton: "btn btn-success",
+                                cancelButton: "btn btn-danger"
+                            },
+                            buttonsStyling: false
+                        });
+                        swalCustomButton.fire({
+                            html: '<ul style="padding-left: 20px; list-style-position: inside; margin: 0;">Cliente agregado</ul>',
+                            icon: 'success',
+                            timer: 1500
+                        });
+                    } else {
+                        const errors = data.errors
+                        Object.keys(errors).forEach(field => {
+                            const fieldErrors = errors[field];
+                            fieldErrors.forEach(_ => {
+                                const input = document.querySelector('[name="' + field + '"]');
+                                if (input) {
+                                    input.classList.add('is-invalid');
+                                }
+                            });
+                        });
+
+                    }
+                }
+
+            } catch (error) {
+
+            }
+
+
+
+        }
+    });
+
+    function resetAll() {
+        products = [];
+        id_client = 0;
+        rowSelected = null;
+        subTotal = 0.0;
+        discount = 0.0;
+        valDiscount = 0.1;
+        subTotalBase = 0.0;
+        totalIva = 0.0;
+        valIva = 0.0;
+        total = 0.0;
+        cash_received = 0.0;
+        cash_change = 0.0;
+
+        document.querySelector('input[name="id_client"]').value = '';
+        document.querySelector('[name="cash_received"]').value = '';
+        document.querySelector('[name="code_product"]').value = '';
+        document.getElementById('span_subtotal').innerHTML = subTotal;
+        document.getElementById('span_discount').textContent = discount;
+        document.getElementById('span_subtotal_base').innerHTML = subTotalBase;
+        document.getElementById('span_total_iva').innerHTML = totalIva;
+        document.getElementById('span_total').innerHTML = total;
+        document.getElementById('cash_change').innerHTML = cash_change;
+
+        document.querySelector('#tableProducts tbody').innerHTML='';
+        document.getElementById('info-client').innerHTML='';
     }
 
     function formatNumber(numero) {
