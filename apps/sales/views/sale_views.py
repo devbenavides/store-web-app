@@ -13,7 +13,7 @@ from django.db.models import Max
 import json
 
 
-def gertAllSale(request):
+def getFormSales(request):
     date_utc = timezone.now()
     today = timezone.localtime(date_utc)
     searchCodeProduct = reverse('search_code_product')
@@ -27,6 +27,10 @@ def gertAllSale(request):
         'searchNameCategory': searchNameCategory,
         'searchClientNumberId': searchClientNumberId,
         'numberInvoice': numberInvoice})
+
+def getAllSales(request):
+    sales=Sale.objects.order_by('id')
+    return render(request,'sales.html',{'sales':sales})
 
 
 def searchNameCategoryProduct(request):

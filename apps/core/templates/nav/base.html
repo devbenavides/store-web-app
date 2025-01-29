@@ -37,7 +37,10 @@
                 <a class="nav-link active" aria-current="page" href="{% url 'list_orders' %}">Pedidos</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="{% url 'list_sales' %}">Ventas</a>
+                <a class="nav-link active" aria-current="page" href="{% url 'get_form_sales' %}">Ventas</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{% url 'get_all_sales' %}">Lista de Ventas</a>
               </li>
               {% if user.is_authenticated %}
               <li class="nav-item">

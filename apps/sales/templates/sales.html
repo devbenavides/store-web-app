@@ -1,0 +1,50 @@
+{% extends 'nav/base.html' %}
+{% load static %}
+{% block content %}
+<main class="container">
+    <div class="row">
+        <div class="col-md-7 offset-md-3">
+            <h1 class="text-center display-center py-5">Productos</h1>
+            <!-- <div class="py-3">
+                <button type="button" class="btn btn-primary" onclick="">Agregar producto</button>
+            </div>
+            <div id="alerts"></div> -->
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Producto</th>
+                    <th scope="col">Cantidad</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Factura</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                  <tr>
+                    <th scope="row">{{sale.id}}</th>
+                    <td>{{sale.product.name_product}}</td>
+                    <td>{{sale.quantity}}</td>
+                    <td>{{sale.sales_price}}</td>
+                    <td>{{sale.invoice.date_invoice}}</td>
+                    <td>{{sale.invoice.code_invoice}}</td>
+                    <td>{{sale.invoice.client.first_name}} {{sale.invoice.client.last_name}}</td>
+                    <td>
+                        <button type="button" class="btn btn-success" onclick="">Editar</button>
+                        <button type="button" class="btn btn-danger" onclick="">Eliminar</button>
+                        
+                        </form>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                  
+                </tbody>
+              </table>
+            
+        </div>
+    </div>
+</main>
+{% endblock %}
